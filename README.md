@@ -2,7 +2,7 @@
 
 
 #### QUICKSTART:
-##### Cloner le projet:
+##### 1/ Cloner le projet:
 git clone https://github.com/Plaquettes-G5/Plaquettes-estiam.git
 
 ##### Le projet est cloné sur ma machine, maintenant je fais quoi?
@@ -20,7 +20,7 @@ Une fois le fichier .env placé dans le projet, je le lance:
 
 Quand le projet est lancé, il tourne sur le port 3000: localhost:3000
 
-##### Pour développer:
+##### 2/ Pour développer:
 
 Le mieux est de créer une branche pour chaque fonction majeure.
 ###### Avant de commencer à développer:
@@ -29,14 +29,14 @@ Création de nouvelle branche:
 Quand ma branche est créée, je vais dessus pour développer:
 `git checkout my-branch`
 
-###### Pendant que je développe ma fonction:
+###### 3/ Pendant que je développe ma fonction:
 
 Quand je suis satisfait de mon code, j'ajoute les modifs en staging:
 `git add --all`
 Puis je commit les changements mis en staging, avec un message de commit clair qui résume ce qui a été fait, exemple:
 `git commit -m "fonction en cours de développement: authentification de base Ok"`
 
-###### Lorsque ma fonction est terminée:
+###### 4/ Lorsque ma fonction est terminée:
 
 Une fois que la fonction que je développe est terminée, je merge la branche avec la branche master.
 Je me place sur la branche master:

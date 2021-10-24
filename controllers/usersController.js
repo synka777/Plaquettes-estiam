@@ -22,7 +22,7 @@ let get = function(url) {
     }) 
   }
 
-/* module.exports.getUsers = async function() {
+module.exports.getUsers = async function() {
     let users = await get('https://jsonplaceholder.typicode.com/users')
     return users
-} */
+}
