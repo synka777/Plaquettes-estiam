@@ -17,7 +17,27 @@ router.get('/', (req, res) => {
 
 router.get('/add-partners', (req, res) => {
     partnersController.insertMultiplePartners().then(resp => {
-        console.log('after controller')
+        res.write(JSON.stringify(resp))
+        res.send()
+    })
+});
+
+router.get('/get-partners', (req, res) => {
+    partnersController.readPartners().then(resp => {
+        res.write(JSON.stringify(resp))
+        res.send()
+    })
+});
+
+router.get('/update-partner', (req, res) => {
+    partnersController.updatePartner().then(resp => {
+        res.write(JSON.stringify(resp))
+        res.send()
+    })
+});
+
+router.get('/delete-partners', (req, res) => {
+    partnersController.deletePartners().then(resp => {
         res.write(JSON.stringify(resp))
         res.send()
     })
