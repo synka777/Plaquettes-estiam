@@ -16,41 +16,38 @@ router.get('/', (req, res) => {
 })
 
 router.get('/add-partners', (req, res) => {
-    partnersController.insertMultiplePartners().then(resp => {
+    partnersController.insertMultiplePartners(req.body).then(resp => {
         res.write(JSON.stringify(resp))
         res.send()
     })
 });
 
 router.get('/get-partners', (req, res) => {
-    partnersController.readPartners().then(resp => {
-        res.write(JSON.stringify(resp))
+    console.log('Entered route /get-partners')
+    partnersController.readPartners(req.body).then(resp => {
+        res.write(String(resp))
         res.send()
     })
 });
 
 router.get('/update-partner', (req, res) => {
-    partnersController.updatePartner().then(resp => {
+    partnersController.updatePartner(req).then(resp => {
         res.write(JSON.stringify(resp))
         res.send()
     })
 });
 
 router.get('/delete-partners', (req, res) => {
-    partnersController.deletePartners().then(resp => {
+    partnersController.deletePartners(req).then(resp => {
         res.write(JSON.stringify(resp))
         res.send()
     })
 });
 
-/* router.get('/users', (req, res) => {
-    usersModel.findAll().then((users) => {
-        res.send(users)
-    })   
-}) */
+
 
 
 app.use('/', router)
 app.use('/add-partners', router)
-
+app.use('/get-partners', router)
 module.exports = app

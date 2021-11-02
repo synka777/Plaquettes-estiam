@@ -1,12 +1,11 @@
 require('dotenv').config()
 const db = require('../kernel/db');
-const { deleteOne } = require('../models/partner');
 const PartnerModel = require('../models/partner')
 const utils = require('../kernel/utils');
 
 /* Ce fichier sert à effectuer des opérations CRUD sur le modèle partner */
 
-module.exports.insertMultiplePartners = async function(){
+module.exports.insertMultiplePartners = async function(newPartners){
     const response = [];
     const newData = [
         {
@@ -17,7 +16,7 @@ module.exports.insertMultiplePartners = async function(){
             name:'CGI',
             logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/CGI_logo.svg/1200px-CGI_logo.svg.png'
         }
-    ];
+    ] || newPartners;
     db.connect()
     for(let object of newData){
         const newPartner = utils.objectToPartner(object);
@@ -31,21 +30,30 @@ module.exports.insertMultiplePartners = async function(){
 
 module.exports.readPartners = async function(objects){
     const response = [];
-    db.connect()
-    if(objects===undefined){
-        const partnerToFind = utils.objectToPartner({id:'', name:'', logo:''});
-        console.log(partnerToFind)
-        console.log(typeof(partnerToFind))
-        const response = await partnerToFind.find()
-        response.push(response)
+    
+    console.log(typeof(objects))
+    console.log(objects)
+    if(objects===undefined/* ||objects==[]||objects==''||!objects */){
+        console.log('After IF undefined')
+        db.connect().then(
+        await PartnerModel.find().exec().then(partners => {
+            for(let partner of partners) response.push(partner)
+        })
+        ).finally(db.close())
     }else{
+        console.log('FELL IN THE WELL OF ELSENESS')
         for(let object of objects){
             const partnerToFind = utils.objectToPartner(object);
-            const chunk = await partnerToFind.find(partnerToFind)
-            response.push(chunk)
+            db.connect().then(
+                await PartnerModel.find(partnerToFind).exec().then(partners => {
+                    for(let partner of partners) response.push(partner)
+                })
+            ).finally(db.close())
+            
         }
     }
     db.close()
+    console.log(response)
     return response
 }
 
