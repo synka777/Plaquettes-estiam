@@ -9,21 +9,17 @@ const password = process.env.DB_PWD;
 
 const uri = `mongodb+srv://${username}:${password}@${host}/${dbname}?retryWrites=true&w=majority`;
 
-module.exports.connect = async () => {
-    try {
+module.exports.connect = () => {
         mongoose.Promise = global.Promise;
-        mongoose.connect(uri, { useNewUrlParser: true })
+        mongoose.connect(uri, { useNewUrlParser : true, useUnifiedTopology: true });
         const db = mongoose.connection
         db.on('error', (error) => console.error(error))
         db.once('open', () => console.log('Connected to Database'))
-
-    } catch (e) {
-        console.error(e)
-    }
-    
+        
 }
 
 module.exports.close = async() => {
     mongoose.connection.close()
+    console.log('Session closed')
 }
 
