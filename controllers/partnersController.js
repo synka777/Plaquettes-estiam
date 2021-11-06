@@ -1,4 +1,3 @@
-const db = require('../kernel/db');
 const PartnerModel = require('../models/partner')
 const utils = require('../kernel/utils');
 
@@ -19,21 +18,15 @@ module.exports.insertMultiplePartners = async function(newPartners){
         }
     ];
     try {
-        db.connect()
         for(let partner of newData){
-            const newPartner = new PartnerModel();
-            newPartner.name = partner.name;
-            newPartner.logo = partner.logo;
-            console.log('try to add:', newPartner)
-            let np = await newPartner.save()/* .then((data) => done(null, console.log(data))) */
+            const newPartner = utils.objectToPartner(partner, true)
+            console.log('trying to add:', newPartner)
+            let np = await newPartner.save()
             response.push(np)
         }
     } catch(err) {
         console.log(err)
-    } finally {
-        db.close()
     }
-    
     return response
 }
 
@@ -44,13 +37,12 @@ module.exports.readPartners = async function(objects){
     console.log(objects)
     if(objects===undefined||Object.entries(objects).length==0){
         try {
-            db.connect()
             await PartnerModel.find().exec().then(partners => {
                 for(let partner of partners) response.push(partner)
             })
         } catch(err) {
             console.log(err)
-        } finally { db.close() }
+        }
     }else{
         console.log('FELL IN THE WELL OF ELSENESS')
         for(let object of [objects]){
@@ -58,13 +50,12 @@ module.exports.readPartners = async function(objects){
                 console.log('data:yes, in for loop')
                 const partnerToFind = utils.objectToPartner(object);
                 console.log('try to find:', partnerToFind)
-                db.connect()
                 await PartnerModel.find(partnerToFind).exec().then(partners => {
                     for(let partner of partners) response.push(partner)
                 })
             } catch(err) {
                 console.log(err)
-            }finally{ db.close() }
+            }
         }
     }
     console.log(response)
@@ -72,23 +63,19 @@ module.exports.readPartners = async function(objects){
 }
 
 module.exports.updatePartner = async function(obj){
-    db.connect()
     const partner = (utils.objectToPartner([obj]))[0];
     if(!partner.id){ let error = 'please provide an ID' }
     const updatedPartner = await partner.findByIdAndUpdate()
-    db.close()
     return updatedPartner
 }
 
 module.exports.deletePartners = async function(objects){
     const response = [];
-    db.connect()
     for(let object of objects){
         const newPartner = utils.objectToPartner(object);
         let chunk = await newPartner.remove()
         response.push(chunk)
     }
-    db.close()
     return response
 }
 

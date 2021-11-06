@@ -14,4 +14,3 @@ présent dans le répertoire controllers */
 module.exports = mongoose.model('Partner', PartnerSchema, 'Partners');
 
 
-

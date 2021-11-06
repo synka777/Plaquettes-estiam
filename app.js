@@ -1,5 +1,6 @@
 const express = require("express")
 const app = express()
+const db = require('./kernel/db');
 
 
 const router = express.Router()
@@ -8,6 +9,8 @@ const partnersController = require("./controllers/partnersController")
 /* Ce fichier sert à appeler les contrôleurs de modèles et présenter la donnée en réponse 
 aux requêtes entrantes. La gestion d'accès se fera en appelant une fonction de contrôle d'accès
 depuis chaque route de ce fichier */
+
+db.connect()
 
 router.get('/', (req, res) => {
     res.write('Root')
