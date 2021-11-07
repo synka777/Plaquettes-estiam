@@ -19,7 +19,6 @@ router.get('/', (req, res) => {
 })
 
 router.post('/add-partners', (req, res) => {
-    console.log('GOT PARAMETERS:', req.body)
     partnersController.insertMultiplePartners(req.body).then(resp => {
         res.write(JSON.stringify(resp))
         res.send()
@@ -27,23 +26,22 @@ router.post('/add-partners', (req, res) => {
 });
 
 router.get('/get-partners', (req, res) => {
-    console.log('Entered route /get-partners')
     partnersController.readPartners(req.body).then(resp => {
-        res.write(String(resp))
-        res.send()
-    })
-});
-
-router.get('/update-partner', (req, res) => {
-    partnersController.updatePartner(req).then(resp => {
         res.write(JSON.stringify(resp))
         res.send()
     })
 });
 
-router.get('/delete-partners', (req, res) => {
-    partnersController.deletePartners(req).then(resp => {
+router.post('/update-partner', (req, res) => {
+    partnersController.updatePartner(req.body).then(resp => {
         res.write(JSON.stringify(resp))
+        res.send()
+    })
+});
+
+router.post('/delete-partners', (req, res) => {
+    partnersController.deletePartners(req.body).then(resp => {
+        res.write(resp)
         res.send()
     })
 });

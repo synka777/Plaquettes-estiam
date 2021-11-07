@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const PartnerSchema = new Schema({
-    _id: undefined || mongoose.Types.ObjectId,
+    _id: undefined || String,
     name: String,
     logo: String
 });
