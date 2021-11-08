@@ -48,11 +48,11 @@ module.exports.insertMultiplePartners = async function(newPartners){
 
 module.exports.readPartners = async function(searchQueries){
     const response = [];
-    if(searchQueries.queries){
+    if(searchQueries.filters){
         // Recherche avec body et requêtes multiples
-        for(let query of searchQueries.queries){
+        for(let filter of searchQueries.filters){
             try {
-                const partnerToFind = utils.objectToPartner(query);
+                const partnerToFind = utils.objectToPartner(filter);
                 await PartnerModel.find(partnerToFind).exec().then(results => {
                     for(let result of results) response.push(result)
                 })
@@ -63,9 +63,9 @@ module.exports.readPartners = async function(searchQueries){
         return response
     }
     // Requête unique ou sans body
-    const query = searchQueries?searchQueries:undefined
+    const filter = searchQueries?searchQueries:undefined
     try {
-        await PartnerModel.find(query).exec().then(partners => {
+        await PartnerModel.find(filter).exec().then(partners => {
             for(let partner of partners) response.push(partner)
         })
         return response
@@ -75,12 +75,11 @@ module.exports.readPartners = async function(searchQueries){
 }
 
 module.exports.updatePartner = async function(query){
-    console.log(query)
-    if(query.search && query.replace){
+    if(query.filter && query.replace){
         try {
             await PartnerModel.find(query.search).exec().then(partner => {
-                if(!partner[0]._id) return;
-                return PartnerModel.findByIdAndUpdate(partner[0]._id, query.replace)
+            if(!partner[0]._id) return;
+            return PartnerModel.findByIdAndUpdate(partner[0]._id, query.replace)
             })
         } catch(err) {
             console.log(err)
@@ -89,31 +88,34 @@ module.exports.updatePartner = async function(query){
 }
 
 module.exports.deletePartners = async function(searchQueries){
+    if(!searchQueries) return '500';
     const response = [];
-    if(searchQueries.queries){
-        let chunk;
-        for(let query of searchQueries.queries){
+    if(searchQueries.filters){
+        for(let filter of searchQueries.filters){
+            console.log('filter:',filter)
             try {
-                const model = utils.objectToPartner(query);
-                await PartnerModel.find(model).exec().then(partner => {
-                    if(!partner[0]._id) return;
-                    chunk = PartnerModel.findByIdAndDelete(partner[0]._id)
-                    response.push(chunk)
-                })
-            } catch(err) { response.push(err) }
+                response.push(!(await searchAndDestroy(filter)) ? '200' : '500');
+            } catch(err) { response.push('500') }
         }
         return response
     }
-    const query = searchQueries?searchQueries:undefined
+    const filter = searchQueries
+    console.log(filter)
     try {
-        const partner = utils.objectToPartner(query);
-        await PartnerModel.find(partner).exec().then(partner => {
-            if(!partner[0]._id) return;
-            return PartnerModel.findByIdAndDelete(partner[0]._id)
-        })
+        return !(await searchAndDestroy(filter)) ? '200' : '500';
     } catch(err) {
         console.log(err)
     }   
 }
 
+
+async function searchAndDestroy(filter) {
+    const partner = utils.objectToPartner(filter);
+    console.log('To delete:', partner);
+    console.log(typeof (partner));
+    await PartnerModel.find(partner).exec().then(partner => {
+        console.log('found:',partner)
+        return PartnerModel.findByIdAndDelete(partner[0]._id);
+    });
+}
 
