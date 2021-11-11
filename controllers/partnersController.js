@@ -28,7 +28,8 @@ const { ObjectId } = require('bson');
     }
 */
 module.exports.insertMultiplePartners = async function(body){
-    if(!body || body.length()==0) return '400 Bad request: Body required';
+    console.log('got body', body)
+    if(Object.keys(body).length==0) return '400 Bad request: Body required';
     const response = [];
     
     // Ajout(s) avec body.entries 
@@ -44,16 +45,17 @@ module.exports.insertMultiplePartners = async function(body){
             return '500 Internal Server Error'
         }
     }
-    //Ajout simple
     if(!(Object.getOwnPropertyNames(body)).includes('name'||'logo')) {
         return '400 Bad request: Unkown property'
     }
-    
+    //Ajout simple
     try{
         const newPartner = utils.objectToPartner(body, true)
-        const result =  await newPartner.save()
-        // check if 
-        return '201 Created: ', result;
+        const result = await newPartner.save()
+        return {
+            "status": "200 OK",
+            "data": result
+        };
     }catch(err){
         console.log(err)
         return '500 Internal Server Error'
@@ -115,7 +117,7 @@ module.exports.readPartners = async function(body){
 */
 module.exports.updatePartner = async function(body){
     let response = {};
-    if(!body || Object.keys(body).length == 0) {
+    if(Object.keys(body).length == 0) {
         return {
             "status": "400 Bad request",
             "message": "Body required"

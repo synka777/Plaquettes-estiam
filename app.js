@@ -28,6 +28,7 @@ router.get('/', (req, res) => {
 
 router.post('/add-partners', (req, res) => {
     partnersController.insertMultiplePartners(req.body).then(resp => {
+        console.log('got from controller:', resp)
         res.write(JSON.stringify(resp));
         res.send();
     })
