@@ -1,14 +1,12 @@
 const PartnerModel = require('../models/partner')
 const utils = require('../kernel/utils');
-const mongoose = require('mongoose');
-const { ObjectId } = require('bson');
 
 /* Ce fichier sert à effectuer des opérations CRUD sur le modèle partner */
 /* TODO: Vérifier si les codes de retour sont corrects */
 
 
 /* CREATE, USAGE:
-    Syntax body avec entrées multiples à ajouter en une seule requête:
+    Syntaxe body avec entrées multiples à ajouter en une seule requête:
     {
         "entries": [
             {
@@ -28,28 +26,56 @@ const { ObjectId } = require('bson');
     }
 */
 module.exports.insertMultiplePartners = async function(body){
-    console.log('got body', body)
-    if(Object.keys(body).length==0) return '400 Bad request: Body required';
-    const response = [];
-    
+    if(Object.keys(body).length==0) return {
+        "status": "400 Bad request",
+        "message": "Body required"
+    };
+    const data = [];
     // Ajout(s) avec body.entries 
     if(body.entries){
-        try {
-            for(let partner of body.entries){
+        for(let partner of body.entries){
+            try {
+                // Si un partenaire existe déjà avec ce nom, erreur
+                if(await PartnerModel.findOne(partner).exec()) throw TypeError
                 const newPartner = utils.objectToPartner(partner, true)
-                response.push('201 Created:', (await newPartner.save()))
+                if(newPartner.name==null||newPartner.name==''){
+                    data.push({
+                        "status": "400 Bad request",
+                        "message": "Empty property"
+                    })
+                }
+                const response = await newPartner.save()
+                data.push({
+                    "status": "201 Created",
+                    "data": response
+                })
+            } catch(err) {
+                if(err.name=='TypeError'){
+                    data.push({
+                        "status": "409 Conflict",
+                        "message": "A partner may already exist by that name"
+                    })
+                }else{
+                    console.log(err);
+                    data.push({
+                        "status": "500 Internal server error",
+                        "error": err.name
+                    })
+                }
             }
-            return response
-        } catch(err) {
-            console.log(err)
-            return '500 Internal Server Error'
         }
+        return data
     }
     if(!(Object.getOwnPropertyNames(body)).includes('name'||'logo')) {
-        return '400 Bad request: Unkown property'
+        return {
+            "status": "400 Bad request",
+            "message": "Unknown property"
+        }
     }
     //Ajout simple
     try{
+        // Si un partenaire existe déjà avec ce nom, erreur
+        if(await PartnerModel.findOne(body).exec()) throw TypeError
         const newPartner = utils.objectToPartner(body, true)
         const result = await newPartner.save()
         return {
@@ -57,50 +83,94 @@ module.exports.insertMultiplePartners = async function(body){
             "data": result
         };
     }catch(err){
-        console.log(err)
-        return '500 Internal Server Error'
+        if(err.name=='TypeError'){
+            data.push({
+                "status": "409 Conflict",
+                "message": "A partner may already exist by that name"
+            })
+        }else{
+            console.log(err);
+            data.push({
+                "status": "500 Internal server error",
+                "error": err.name
+            })
+        }
+        return data
     }
-
 }
 
 /* READ, USAGE:
     - Pas de body: Renvoie les liste de partenaires au complet sans condition d'affichage
     - Body avec plusieurs partenaires dans la même requête:
-
-
+    {
+        "filters": [
+            {
+                "name": "Lego"
+            },
+            {
+                "name": "CGI"
+            }
+        ]
+    }
+    - Body avec requête un seul partenaire dans une seule requête:
+    {
+        "name": "CGI"
+    }
 */
 module.exports.readPartners = async function(body){
-    const response = [];
+    const data = [];
     if(body.filters){
         // Recherche avec body et requêtes multiples
         for(let filter of body.filters){
+            console.log('filter:', filter)
             try {
                 const partnerToFind = utils.objectToPartner(filter);
                 await PartnerModel.find(partnerToFind).exec().then(results => {
-                    for(let result of results) response.push(result);
+                    for(let result of results){
+                        data.push(result);
+                    }
                 })
             } catch(err) {
                 console.log(err);
-                return '500 Internal Server Error';
+                return {
+                    "status": "500 Internal server error",
+                    "error": err.name
+                }
             }
         }
-        return response
+        return data
     }
+    // On check si des propriétés incorrectes ont été fournies
     if(Object.keys(body).length!=0){
         if(!(Object.getOwnPropertyNames(body)).includes('name'||'logo')) {
-            return '400 Bad request: Unkown property';
+            return {
+                "status": "400 Bad request",
+                "message": "Unknown property"
+            };
         }
     }
     // Requête unique ou sans body
     const filter = body ? body : undefined
     try {
         await PartnerModel.find(filter).exec().then(partners => {
-            for(let partner of partners) response.push(partner);
+            for(let partner of partners) data.push(partner);
         })
-        return response
+        return {
+            "status": "200 OK",
+            "data": data
+        }
     } catch(err) {
-        console.log(err)
-        return '500 Internal Server Error'
+        console.log(err);
+        if(err.name=='TypeError'){
+            return {
+                "status": "500 Internal server error",
+                "message": "The given partner was most likely not found"
+            }
+        }
+        return {
+            "status": "500 Internal server error",
+            "error": err.name
+        }
     }
 }
 
@@ -123,11 +193,13 @@ module.exports.updatePartner = async function(body){
             "message": "Body required"
         }
     }
-    if(body.filter && body.replace){
+    if(body.filter && body.replace && !(body.filter=='' || body.replace=='')){
         try {
             await PartnerModel.find(body.filter).exec().then(partner => {
                 if(!partner[0]._id) throw TypeError
                 response = PartnerModel.findByIdAndUpdate(partner[0]._id, body.replace).then(response => {
+                    response.name = body.replace
+                    console.log('edited', response)
                     return {
                         "status": "200 OK",
                         "data": response
@@ -139,9 +211,8 @@ module.exports.updatePartner = async function(body){
             console.log(err);
             if(err.name=='TypeError'){
                 return {
-                    "status": "500 Internal server error",
-                    "error": err.name,
-                    "message": "The given partner was most likely not found"
+                    "status": "404 Not found",
+                    "message": "Resource not found"
                 }
             }
             return {
@@ -149,7 +220,11 @@ module.exports.updatePartner = async function(body){
                 "error": err.name
             }
         }  
-    }  
+    }
+    return {
+        "status": "400 Bad request",
+        "message": "Body required"
+    }
 }
 
 /* DELETE, USAGE:
@@ -170,22 +245,46 @@ module.exports.updatePartner = async function(body){
     }
 */
 module.exports.deletePartners = async function(body){
-    if(!body || Object.keys(body).length == 0) return '400 Bad request: Body required';
+    console.log(body)
+    if(Object.keys(body).length == 0) return {
+        "status": "400 Bad request",
+        "message": "Body required"
+    };
     const response = [];
     if(body.filters){
         for(let filter of body.filters){
             try {
-                response.push(!(await searchAndDestroy(filter)) ? '200 OK' : '500 Internal Server Error');
-            } catch(err) { response.push('500: Internal server error') }
+                response.push(!(await searchAndDestroy(filter)) ? '200 OK' : undefined)
+            } catch(err) { 
+                response.push({
+                    "status": "404 Not found",
+                    "message": "Resource not found"
+                }) 
+            }
         }
         return response
     }
     const filter = body
     try {
-        return !(await searchAndDestroy(filter)) ? '200 OK' : '500 Internal server error';
+        return !(await searchAndDestroy(filter)) ? '200 OK' :{
+            "status": "404 not found",
+            "message": "Resource not found"
+        };
     } catch(err) {
-        console.log(err)
-        return '500 Internal Server Error'
+        /* console.log(err)
+        return '500 Internal Server Error' */
+        console.log(err);
+        if(err.name=='TypeError'){
+            return {
+                "status": "500 Internal server error",
+                "error": err.name,
+                "message": "The given partner was most likely not found"
+            }
+        }
+        return {
+            "status": "500 Internal server error",
+            "error": err.name
+        }
     }   
 }
 

@@ -28,7 +28,6 @@ router.get('/', (req, res) => {
 
 router.post('/add-partners', (req, res) => {
     partnersController.insertMultiplePartners(req.body).then(resp => {
-        console.log('got from controller:', resp)
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -50,7 +49,8 @@ router.post('/update-partner', (req, res) => {
 
 router.post('/delete-partners', (req, res) => {
     partnersController.deletePartners(req.body).then(resp => {
-        res.write(String(resp));
+        console.log('got',resp)
+        res.write(JSON.stringify(resp));
         res.send();
     })
 });
