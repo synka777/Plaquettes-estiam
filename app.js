@@ -42,7 +42,7 @@ router.get('/get-partners', (req, res) => {
 
 router.post('/update-partner', (req, res) => {
     partnersController.updatePartner(req.body).then(resp => {
-        res.write(String(resp));
+        res.write(JSON.stringify(resp));
         res.send();
     })
 });

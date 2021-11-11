@@ -28,8 +28,7 @@ const { ObjectId } = require('bson');
     }
 */
 module.exports.insertMultiplePartners = async function(body){
-    console.log()
-    if(!body) return '400 Bad request: Body required';
+    if(!body || body.length()==0) return '400 Bad request: Body required';
     const response = [];
     
     // Ajout(s) avec body.entries 
@@ -79,22 +78,22 @@ module.exports.readPartners = async function(body){
                     for(let result of results) response.push(result);
                 })
             } catch(err) {
-                console.log(err)
-                return '500 Internal Server Error'
+                console.log(err);
+                return '500 Internal Server Error';
             }
         }
         return response
     }
     if(Object.keys(body).length!=0){
         if(!(Object.getOwnPropertyNames(body)).includes('name'||'logo')) {
-            return '400 Bad request: Unkown property'
+            return '400 Bad request: Unkown property';
         }
     }
     // Requête unique ou sans body
     const filter = body ? body : undefined
     try {
         await PartnerModel.find(filter).exec().then(partners => {
-            for(let partner of partners) response.push(partner)
+            for(let partner of partners) response.push(partner);
         })
         return response
     } catch(err) {
@@ -115,16 +114,38 @@ module.exports.readPartners = async function(body){
     }
 */
 module.exports.updatePartner = async function(body){
-    if(!body) return '400 Bad request: Body required';
+    let response = {};
+    if(!body || Object.keys(body).length == 0) {
+        return {
+            "status": "400 Bad request",
+            "message": "Body required"
+        }
+    }
     if(body.filter && body.replace){
         try {
             await PartnerModel.find(body.filter).exec().then(partner => {
-            if(!partner[0]._id) return;
-            return PartnerModel.findByIdAndUpdate(partner[0]._id, body.replace);
+                if(!partner[0]._id) throw TypeError
+                response = PartnerModel.findByIdAndUpdate(partner[0]._id, body.replace).then(response => {
+                    return {
+                        "status": "200 OK",
+                        "data": response
+                    }
+                })  
             })
+            return response
         } catch(err) {
-            console.log(err)
-            return '500 Internal server error'
+            console.log(err);
+            if(err.name=='TypeError'){
+                return {
+                    "status": "500 Internal server error",
+                    "error": err.name,
+                    "message": "The given partner was most likely not found"
+                }
+            }
+            return {
+                "status": "500 Internal server error",
+                "error": err.name
+            }
         }  
     }  
 }
@@ -147,7 +168,7 @@ module.exports.updatePartner = async function(body){
     }
 */
 module.exports.deletePartners = async function(body){
-    if(!body) return '400 Bad request: Body required';
+    if(!body || Object.keys(body).length == 0) return '400 Bad request: Body required';
     const response = [];
     if(body.filters){
         for(let filter of body.filters){
