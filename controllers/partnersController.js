@@ -113,12 +113,22 @@ module.exports.insertMultiplePartners = async function(body){
         ]
     }
     - Body avec requête un seul partenaire dans une seule requête:
-    {
-        "name": "CGI"
-    }
+    {"name": "CGI"}
+
+    PROTIP1: La recherche partielle est possible, exemple avec une recherche simple:
+    { "name": { "$regex": "a" } }
+
+    PROTIP2: La recherche SIMPLE (sans la propriété 'filters') peut être limitée pour ne pas faire 
+    de requêtes trop lourdes sur un type de document avec l'utilisation des propriétés "skip" et "limit".
+    Exemple avec une page devant contenir les 10 premiers résultats:
+    {"name": "CGI","skip": "0","limit": 10}
+    Exemple 2, deuxième page des 10 résultats suivants:
+    {"name": "CGI","skip": 10,"limit": 10}
 */
 module.exports.readPartners = async function(body){
     const data = [];
+    const skip = body.skip?Number(body.skip):0;
+    const limit = body.limit?Number(body.limit):0;
     if(body.filters){
         // Recherche avec body et requêtes multiples
         for(let filter of body.filters){
@@ -138,11 +148,10 @@ module.exports.readPartners = async function(body){
                 }
             }
         }
-        return data
     }
     // On check si des propriétés incorrectes ont été fournies
     if(Object.keys(body).length!=0){
-        if(!(Object.getOwnPropertyNames(body)).includes('name'||'logo')) {
+        if(!(Object.hasOwnProperty('name'||'logo'||'skip'||'limit'))) {
             return {
                 "status": "400 Bad request",
                 "message": "Unknown property"
@@ -152,12 +161,19 @@ module.exports.readPartners = async function(body){
     // Requête unique ou sans body
     const filter = body ? body : undefined
     try {
-        await PartnerModel.find(filter).exec().then(partners => {
+        await PartnerModel.find(filter).skip(skip).limit(limit).exec().then(partners => {
             for(let partner of partners) data.push(partner);
         })
-        return {
-            "status": "200 OK",
-            "data": data
+        if(data!=''){
+            return {
+                "status": "200 OK",
+                "data": data
+            }
+        }else{
+            return {
+                "status": "404 Not found",
+                "message": "Resource not found"
+            }
         }
     } catch(err) {
         console.log(err);
@@ -240,9 +256,7 @@ module.exports.updatePartner = async function(body){
         ]
     }
     Syntaxe simple pour suppression d'une seule entrée par requête:
-    {
-        "name": "Saint-Gobain"
-    }
+    {"name": "Saint-Gobain"}
 */
 module.exports.deletePartners = async function(body){
     console.log(body)
@@ -271,8 +285,6 @@ module.exports.deletePartners = async function(body){
             "message": "Resource not found"
         };
     } catch(err) {
-        /* console.log(err)
-        return '500 Internal Server Error' */
         console.log(err);
         if(err.name=='TypeError'){
             return {
