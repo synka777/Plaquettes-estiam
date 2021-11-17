@@ -4,7 +4,7 @@ const db = require('./kernel/db');
 
 
 const router = express.Router();
-const partnersController = require("./controllers/partnersController");
+const titleAndImageController = require("./controllers/titleAndImageController");
 
 /* Ce fichier sert à appeler les contrôleurs de modèles et présenter la donnée en réponse 
 aux requêtes entrantes. La gestion d'accès se fera en appelant une fonction de contrôle d'accès
@@ -27,28 +27,28 @@ router.get('/', (req, res) => {
 })
 
 router.post('/add-partners', (req, res) => {
-    partnersController.insertMultiplePartners(req.body).then(resp => {
+    titleAndImageController.insertMultipleDocuments(req.body, 'Partner').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
 });
 
 router.get('/get-partners', (req, res) => {
-    partnersController.readPartners(req.body).then(resp => {
+    titleAndImageController.readDocuments(req.body, 'Partner').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
 });
 
 router.post('/update-partner', (req, res) => {
-    partnersController.updatePartner(req.body).then(resp => {
+    titleAndImageController.updateDocument(req.body, 'Partner').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
 });
 
 router.post('/delete-partners', (req, res) => {
-    partnersController.deletePartners(req.body).then(resp => {
+    titleAndImageController.deleteDocuments(req.body, 'Partner').then(resp => {
         console.log('got',resp)
         res.write(JSON.stringify(resp));
         res.send();

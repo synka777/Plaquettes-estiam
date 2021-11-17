@@ -1,6 +1,7 @@
 const https = require('https')
 
-let get = function(url) {
+// à remplacer avec un vrai user controller
+/* let get = function(url) {
     return new Promise((resolve, reject) => {
       https.get(url, (res) => {
   
@@ -25,4 +26,4 @@ let get = function(url) {
 module.exports.getUsers = async function() {
     let users = await get('https://jsonplaceholder.typicode.com/users')
     return users
-}
+} */
