@@ -58,6 +58,4 @@ router.post('/delete-partners', (req, res) => {
 app.use(express.json());
 //app.use(express.urlencoded({extended:true}));
 app.use('/', router);
-app.use('/add-partners', router);
-app.use('/get-partners', router);
 module.exports = app;
