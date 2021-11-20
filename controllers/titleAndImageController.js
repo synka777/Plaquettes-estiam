@@ -1,13 +1,14 @@
 const utils = require('../kernel/utils');
 const mongoose = require('mongoose');
-/* require("../models/titleAndImage") */
 const titleAndImageSchema = require("../models/titleAndImage")
 const PartnerModel = require("../models/titleAndImage")
 const TechnologyModel = require("../models/titleAndImage")
 const CertificationModel = require("../models/titleAndImage")
 
-/* Ce fichier sert à effectuer des opérations CRUD sur le modèle document */
-/* TODO: Vérifier si les codes de retour sont corrects */
+/* Ce fichier sert à effectuer des opérations CRUD sur le modèle document.
+Les exemple cités sont parlent tous de partenaires mais la syntaxe est exactement la même
+pour les modèles techniologies et certifications également. */
+
 
 
 /* CREATE, USAGE:
@@ -89,7 +90,7 @@ module.exports.insertMultipleDocuments = async function(body, modelName){
         if(await model.findOne(body).exec()) throw TypeError
         const result = await newDocument.save()
         return {
-            "status": "200 OK",
+            "status": "201 Created",
             "data": result
         };
     }catch(err){
