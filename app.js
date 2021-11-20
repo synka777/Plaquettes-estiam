@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const db = require('./kernel/db');
+const { signIn, welcome, refresh } = require("./routes/handlers")
 
 const partnersRoutes = require('./routes/partners.js');
 const technologiesRoutes = require('./routes/technologies.js');
@@ -19,6 +20,10 @@ router.get('/', (req, res) => {
     `);
     res.send();
 })
+
+app.post('/signin', signIn)
+app.get('/welcome', welcome)
+app.post('/refresh', refresh)
 
 app.use(express.json());
 
