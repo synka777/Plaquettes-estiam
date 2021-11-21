@@ -299,7 +299,7 @@ module.exports.deleteDocuments = async function(body, modelName){
         };
     } catch(err) {
         console.log(err);
-        if(err.name=='TypeError'){
+        if(err.name == 'TypeError'){
             return {
                 "status": "500 Internal server error",
                 "error": err.name,
