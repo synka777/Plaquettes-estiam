@@ -5,10 +5,12 @@ const cors = require('cors');
 const router = express.Router();
 const db = require('./kernel/db');
 
-const tokenMgmtRoutes = require("./routes/token.js")
-const partnersRoutes = require('./routes/partners.js');
-const technologiesRoutes = require('./routes/technologies.js');
-const certificationsRoutes = require('./routes/certifications.js');
+const tokenMgmtRoutes = require("./routes/tokenRoutes.js");
+const usersRoutes = require("./routes/usersRoutes.js");
+const rolesRoutes = require('./routes/partnersRoutes.js');
+const partnersRoutes = require('./routes/partnersRoutes.js');
+const technologiesRoutes = require('./routes/technologiesRoutes.js');
+const certificationsRoutes = require('./routes/certificationsRoutes.js');
 
 db.connect();
 
@@ -29,6 +31,8 @@ app.use(cookieParser());
 app.use(cors());
 
 app.use('/', router);
+app.use('/users', usersRoutes);
+app.use('/roles', rolesRoutes);
 app.use('/token', tokenMgmtRoutes);
 app.use('/partners', partnersRoutes);
 app.use('/technologies', technologiesRoutes);

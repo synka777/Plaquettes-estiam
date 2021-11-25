@@ -1,14 +1,6 @@
 const utils = require('../kernel/utils');
 const mongoose = require('mongoose');
 const titleAndImageSchema = require("../models/titleAndImage")
-const PartnerModel = require("../models/titleAndImage")
-const TechnologyModel = require("../models/titleAndImage")
-const CertificationModel = require("../models/titleAndImage")
-
-/* Ce fichier sert à effectuer des opérations CRUD sur le modèle document.
-Les exemple cités sont parlent tous de partenaires mais la syntaxe est exactement la même
-pour les modèles techniologies et certifications également. */
-
 
 
 /* CREATE, USAGE:
@@ -94,7 +86,7 @@ module.exports.insertMultipleDocuments = async function(body, modelName){
             "data": result
         };
     }catch(err){
-        if(err.name=='TypeError'){
+        if(err.name=='TypeError'){ // THIS ERROR MANAGEMENT IS FUCKING AWFUL
             data.push({
                 "status": "409 Conflict",
                 "message": "A document may already exist by that name"
@@ -146,7 +138,8 @@ module.exports.readDocuments = async function(body, modelName){
         for(let filter of body.filters){
             console.log('filter:', filter)
             try {
-                await documentModel.find(filter).exec().then(results => {
+                const documentToFind = utils.objectToTitleAndImage(filter);
+                await documentModel.find(documentToFind).exec().then(results => {
                     for(let result of results){
                         data.push(result);
                     }
@@ -162,7 +155,7 @@ module.exports.readDocuments = async function(body, modelName){
     }
     // On check si des propriétés incorrectes ont été fournies
     if(Object.keys(body).length!=0){
-        if(!body.hasOwnProperty('name'||'logo'||'skip'||'limit')) {
+        if(!(Object.hasOwnProperty('name'||'logo'||'skip'||'limit'))) {
             return {
                 "status": "400 Bad request",
                 "message": "Unknown property"
@@ -225,6 +218,7 @@ module.exports.updateDocument = async function(body, modelName){
         try {/////////////// CONDITION NE MATCHE PAS: A RESOUDRE
             let doc = false;
             documentModel.findOne(body.replace).exec().then(document => {
+                console.log('found', document)
                 if(document.name){ doc = true }
             })
             if(doc==true){ 
@@ -238,6 +232,8 @@ module.exports.updateDocument = async function(body, modelName){
             await documentModel.find(body.filter).exec().then(document => {
                 if(!document[0]._id) throw TypeError
                 response = documentModel.findByIdAndUpdate(document[0]._id, body.replace).then(response => {
+                    response.name = body.replace
+                    console.log('edited', response)
                     return {
                         "status": "200 OK",
                         "data": response
