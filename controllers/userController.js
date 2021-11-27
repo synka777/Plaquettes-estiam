@@ -2,7 +2,6 @@ const userSchema = require('../models/userModel')
 const mongoose = require('mongoose');
 const utils = require('../kernel/utils');
 const { model } = require('mongoose');
-
 /* Ce fichier sert à effectuer des opérations CRUD sur le modèle user */
 
 
@@ -122,6 +121,8 @@ module.exports.createUsers = async function(body){
         "name": "CGI"
     }
 */
+
+
 module.exports.readUsers = async function(body){
 	const userModel = mongoose.model('User');
 	const data = [];

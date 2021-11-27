@@ -15,3 +15,12 @@ module.exports.verifyToken = (res, jwtKey, token) => {
         return res.status(400).end()
     }
 }
+
+module.exports.getModelProperties = (modelName, exclusions) => {
+	const newModel = mongoose.model(modelName);
+	let properties = [];
+	newModel.schema.eachPath(property => properties.push(property))
+	return properties.filter((value) => {
+		return !exclusions.includes(value) ? value : undefined
+	})
+}

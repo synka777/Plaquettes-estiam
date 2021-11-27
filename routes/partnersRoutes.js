@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const utils = require('../kernel/utils.js');
 const titleAndImageController = require("../controllers/titleAndImageController");
+const titleAndImageSchema = require("../models/titleAndImage")
 
 /* Ce fichier sert à appeler les contrôleurs du mpodèle partner et présenter la donnée en réponse 
 aux requêtes entrantes. La gestion d'accès se fera en appelant une fonction de contrôle d'accès
@@ -24,7 +25,8 @@ router.post('/create', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.insertMultipleDocuments(req.body, 'Partner').then(resp => {
+    //console.log(utils.getModelProperties(titleAndImageSchema))
+    titleAndImageController.createDocument(req.body, 'Partner', ['logo','_id','__v'], titleAndImageSchema).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -38,7 +40,7 @@ router.get('/read', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.readDocuments(req.body, 'Partner').then(resp => {
+    titleAndImageController.readDocuments(req.body, 'Partner', ['_id','__v']).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })

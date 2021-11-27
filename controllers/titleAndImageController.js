@@ -9,104 +9,61 @@ const CertificationModel = require("../models/titleAndImage")
 Les exemple cités sont parlent tous de partenaires mais la syntaxe est exactement la même
 pour les modèles techniologies et certifications également. */
 
-
-
 /* CREATE, USAGE:
-    Syntaxe body avec entrées multiples à ajouter en une seule requête:
-    {
-        "entries": [
-            {
-                "name": "Saint-Gobain",
-                "logo": "https: //www.ch.weber/files/ch/styles/1920x1080/public/pictures/2018-07/Logo_SAINTGOBAIN_RVB.jpg?itok=vS-_4dT6"
-            },
-            {
-                "name": "CGI",
-                "logo": "https: //upload.wikimedia.org/wikipedia/commons/thumb/3/32/CGI_logo.svg/1200px-CGI_logo.svg.png"
-            }
-        ]
-    } 
-    Syntaxe simple pour n'ajouter qu'un partenaire à la fois:
+    Syntaxe body:
     {
         "name": "CGI",
         "logo": "https: //upload.wikimedia.org/wikipedia/commons/thumb/3/32/CGI_logo.svg/1200px-CGI_logo.svg.png"
     }
-*/
-module.exports.insertMultipleDocuments = async function(body, modelName){
+    */
+module.exports.createDocument = async function(body, modelName, exclusions, schemaObject){
     if(Object.keys(body).length==0) return {
         "status": "400 Bad request",
         "message": "Body required"
     };
-    const data = [];
-    // Ajout(s) avec body.entries 
-    if(body.entries){
-        for(let document of body.entries){
-            try {
-                const model = mongoose.model(modelName, titleAndImageSchema)
-                const newDocument = new model(document)
-                
-                // Si un partenaire existe déjà avec ce nom, erreur
-                if(await model.findOne(document).exec()) throw TypeError
-                if(newDocument.name==null||newDocument.name==''){
-                    data.push({
-                        "status": "400 Bad request",
-                        "message": "Empty property"
-                    })
-                }else{
-                    const response = await newDocument.save()
-                    data.push({
-                        "status": "201 Created",
-                        "data": response
-                    })
-                }
-            } catch(err) {
-                if(err.name=='TypeError'){
-                    data.push({
-                        "status": "409 Conflict",
-                        "message": "A document may already exist by that name"
-                    })
-                }else{
-                    console.log(err);
-                    data.push({
-                        "status": "500 Internal server error",
-                        "error": err.name
-                    })
-                }
-            }
-        }
-        return data
-    }
-    if(!(Object.getOwnPropertyNames(body)).includes('name'||'logo')) {
-        return {
-            "status": "400 Bad request",
-            "message": "Unknown property"
-        }
-    }
-    //Ajout simple
-    try{
-        const model = mongoose.model(modelName, titleAndImageSchema)
+    const requiredProperties = utils.getModelProperties(modelName, exclusions);
+
+    try {
+        // Créée un modèle
+        const model = mongoose.model(modelName, schemaObject)
         const newDocument = new model(body)
         
         // Si un partenaire existe déjà avec ce nom, erreur
         if(await model.findOne(body).exec()) throw TypeError
-        const result = await newDocument.save()
-        return {
-            "status": "201 Created",
-            "data": result
-        };
-    }catch(err){
+
+        /* Puis on check si les propriétés d'objets requises pour sauvegarder le modèle
+        sont bien présentes et non vides */
+        const validatedProps = requiredProperties.filter((prop)=>{{
+            if(utils.getModelProperties(modelName, exclusions).includes(prop)){
+                return newDocument[prop]==undefined||newDocument[prop]=='' ? false : true
+            }
+        }})
+        // S'il n'y a pas assez de propriétés validées pour que l'opération d'écriture soit validée, erreur
+        if(validatedProps.length!=requiredProperties.length){
+            return ({
+                "status": "400 Bad request",
+                "message": "Empty property"
+            })
+        }else{
+            const response = await newDocument.save()
+            return ({
+                "status": "201 Created",
+                "data": response
+            })
+        }
+    } catch(err) {
         if(err.name=='TypeError'){
-            data.push({
+            return ({
                 "status": "409 Conflict",
                 "message": "A document may already exist by that name"
             })
         }else{
             console.log(err);
-            data.push({
+            return ({
                 "status": "500 Internal server error",
                 "error": err.name
             })
         }
-        return data
     }
 }
 
@@ -136,17 +93,22 @@ module.exports.insertMultipleDocuments = async function(body, modelName){
     Exemple 2, deuxième page des 10 résultats suivants:
     {"name": "CGI","skip": 10,"limit": 10}
 */
-module.exports.readDocuments = async function(body, modelName){
+module.exports.readDocuments = async function(body, modelName, exclusions){
+    const requiredProperties = ['skip','limit'].concat(utils.getModelProperties(modelName, exclusions));
+    const bodyprops = Object.getOwnPropertyNames(body)
+    console.log('we want',requiredProperties)
+    console.log('we have',Object.getOwnPropertyNames(body))
     const documentModel = mongoose.model(modelName)
     const data = [];
-    const skip = body.skip ? Number(body.skip) : 0;
-    const limit = body.limit ? Number(body.limit) : 0;
+    const skip = body.skip?Number(body.skip):0;
+    const limit = body.limit?Number(body.limit):0;
     if(body.filters){
         // Recherche avec body et requêtes multiples
         for(let filter of body.filters){
             console.log('filter:', filter)
             try {
-                await documentModel.find(filter).exec().then(results => {
+                const documentToFind = utils.objectToTitleAndImage(filter);
+                await documentModel.find(documentToFind).exec().then(results => {
                     for(let result of results){
                         data.push(result);
                     }
@@ -162,13 +124,15 @@ module.exports.readDocuments = async function(body, modelName){
     }
     // On check si des propriétés incorrectes ont été fournies
     if(Object.keys(body).length!=0){
-        if(!body.hasOwnProperty('name'||'logo'||'skip'||'limit')) {
+        console.log(requiredProperties.filter((prop)=>{return bodyprops.includes(prop)}))
+        if(requiredProperties.filter((prop)=>{return bodyprops.includes(prop)}).length==0){
             return {
                 "status": "400 Bad request",
                 "message": "Unknown property"
             };
         }
     }
+
     // Requête unique ou sans body
     const filter = body ? body : undefined
     try {
@@ -222,22 +186,12 @@ module.exports.updateDocument = async function(body, modelName){
         }
     }
     if(body.filter && body.replace && !(body.filter=='' || body.replace=='')){
-        try {/////////////// CONDITION NE MATCHE PAS: A RESOUDRE
-            let doc = false;
-            documentModel.findOne(body.replace).exec().then(document => {
-                if(document.name){ doc = true }
-            })
-            if(doc==true){ 
-                throw TypeError
-                /* return {
-                    "status": "409 Conflict",
-                    "message": "A document may already exist by that name"
-                } */
-            }
-            ////////////////
+        try {
             await documentModel.find(body.filter).exec().then(document => {
                 if(!document[0]._id) throw TypeError
                 response = documentModel.findByIdAndUpdate(document[0]._id, body.replace).then(response => {
+                    response.name = body.replace
+                    console.log('edited', response)
                     return {
                         "status": "200 OK",
                         "data": response
@@ -308,7 +262,7 @@ module.exports.deleteDocuments = async function(body, modelName){
         };
     } catch(err) {
         console.log(err);
-        if(err.name == 'TypeError'){
+        if(err.name=='TypeError'){
             return {
                 "status": "500 Internal server error",
                 "error": err.name,
