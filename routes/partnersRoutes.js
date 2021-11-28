@@ -1,12 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const utils = require('../kernel/utils.js');
-const titleAndImageController = require("../controllers/titleAndImageController");
+const baseController = require("../controllers/baseController");
 const titleAndImageSchema = require("../models/titleAndImage")
-
-/* Ce fichier sert à appeler les contrôleurs du mpodèle partner et présenter la donnée en réponse 
-aux requêtes entrantes. La gestion d'accès se fera en appelant une fonction de contrôle d'accès
-depuis chaque route de ce fichier */
 
 router.get('/', (req, res) => {
     res.write('Partenaires');
@@ -25,8 +21,7 @@ router.post('/create', (req, res) => {
         res.end()
         return payload.status 
     }
-    //console.log(utils.getModelProperties(titleAndImageSchema))
-    titleAndImageController.createDocument(req.body, 'Partner', ['logo','_id','__v'], titleAndImageSchema).then(resp => {
+    baseController.createDocument(req.body, 'Partner', ['_id','__v'], titleAndImageSchema).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -40,7 +35,7 @@ router.get('/read', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.readDocuments(req.body, 'Partner', ['_id','__v']).then(resp => {
+    baseController.readDocuments(req.body, 'Partner', ['_id','__v']).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -54,7 +49,7 @@ router.post('/update', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.updateDocument(req.body, 'Partner').then(resp => {
+    baseController.updateDocument(req.body, 'Partner').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -68,7 +63,7 @@ router.post('/delete', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.deleteDocuments(req.body, 'Partner').then(resp => {
+    baseController.deleteDocuments(req.body, 'Partner').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })

@@ -1,11 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const utils = require('../kernel/utils.js');
-const titleAndImageController = require("../controllers/titleAndImageController");
-
-/* Ce fichier sert à appeler les contrôleurs du mpodèle technology et présenter la donnée en réponse 
-aux requêtes entrantes. La gestion d'accès se fera en appelant une fonction de contrôle d'accès
-depuis chaque route de ce fichier */
+const baseController = require("../controllers/baseController");
+const titleAndImageSchema = require("../models/titleAndImage")
 
 router.get('/', (req, res) => {
     res.write('Technologies');
@@ -24,7 +21,7 @@ router.post('/create', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.insertMultipleDocuments(req.body, 'Technology').then(resp => {
+    baseController.createDocument(req.body, 'Technology', ['_id','__v'], titleAndImageSchema).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -38,7 +35,7 @@ router.get('/read', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.readDocuments(req.body, 'Technology').then(resp => {
+    baseController.readDocuments(req.body, 'Technology', ['_id','__v']).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -52,7 +49,7 @@ router.post('/update', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.updateDocument(req.body, 'Technology').then(resp => {
+    baseController.updateDocument(req.body, 'Technology').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -66,7 +63,7 @@ router.post('/delete', (req, res) => {
         res.end()
         return payload.status 
     }
-    titleAndImageController.deleteDocuments(req.body, 'Technology').then(resp => {
+    baseController.deleteDocuments(req.body, 'Technology').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })

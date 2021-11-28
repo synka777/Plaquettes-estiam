@@ -6,8 +6,7 @@ module.exports.jwtKey = 'my_secret_key'
 
 module.exports.verifyToken = (res, jwtKey, token) => {
     try {
-        const payload = jwt.verify(token, jwtKey)
-        return payload
+        return jwt.verify(token, jwtKey)
     } catch (e) {
         if (e instanceof jwt.JsonWebTokenError) {
             return res.status(401).end()

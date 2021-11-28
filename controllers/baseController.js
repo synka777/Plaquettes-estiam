@@ -96,8 +96,6 @@ module.exports.createDocument = async function(body, modelName, exclusions, sche
 module.exports.readDocuments = async function(body, modelName, exclusions){
     const requiredProperties = ['skip','limit'].concat(utils.getModelProperties(modelName, exclusions));
     const bodyprops = Object.getOwnPropertyNames(body)
-    console.log('we want',requiredProperties)
-    console.log('we have',Object.getOwnPropertyNames(body))
     const documentModel = mongoose.model(modelName)
     const data = [];
     const skip = body.skip?Number(body.skip):0;
@@ -187,15 +185,18 @@ module.exports.updateDocument = async function(body, modelName){
     }
     if(body.filter && body.replace && !(body.filter=='' || body.replace=='')){
         try {
+            // On vérifie si un objet n'existe pas déjà avec les informations données en entrée
+            await documentModel.find(body.replace).exec().then(document => {if(document!=''){throw Error}})
             await documentModel.find(body.filter).exec().then(document => {
                 if(!document[0]._id) throw TypeError
                 response = documentModel.findByIdAndUpdate(document[0]._id, body.replace).then(response => {
-                    response.name = body.replace
-                    console.log('edited', response)
-                    return {
-                        "status": "200 OK",
-                        "data": response
+                    if(response!=null){
+                        return {
+                            "status": "200 OK",
+                            "data": response
+                        }
                     }
+                    throw TypeError
                 })  
             })
             return response
@@ -211,7 +212,7 @@ module.exports.updateDocument = async function(body, modelName){
                 "status": "500 Internal server error",
                 "error": err.name
             }
-        }  
+        }
     }
     return {
         "status": "400 Bad request",

@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const utils = require('../kernel/utils.js');
-const roleController = require("../controllers/roleController");
+const baseController = require("../controllers/baseController");
+const roleSchema = require("../models/roleModel")
 
 router.get('/', (req, res) => {
     res.write('Roles');
@@ -20,7 +21,7 @@ router.post('/create', (req, res) => {
         res.end()
         return payload.status 
     }
-    roleController.insertMultipleDocuments(req.body, 'Partner').then(resp => {
+    baseController.createDocument(req.body, 'Role', ['logo','_id','__v'], roleSchema).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -34,7 +35,7 @@ router.get('/read', (req, res) => {
         res.end()
         return payload.status 
     }
-    roleController.readDocuments(req.body, 'Partner').then(resp => {
+    baseController.readDocuments(req.body, 'Role', ['_id','__v']).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -48,7 +49,7 @@ router.post('/update', (req, res) => {
         res.end()
         return payload.status 
     }
-    roleController.updateDocument(req.body, 'Partner').then(resp => {
+    baseController.updateDocument(req.body, 'Role').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -62,7 +63,7 @@ router.post('/delete', (req, res) => {
         res.end()
         return payload.status 
     }
-    roleController.deleteDocuments(req.body, 'Partner').then(resp => {
+    baseController.deleteDocuments(req.body, 'Role').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })

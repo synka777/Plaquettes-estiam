@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const utils = require('../kernel/utils.js');
-const userController = require("../controllers/userController");
+const baseController = require("../controllers/baseController");
+const userSchema = require("../models/userModel")
 
 router.get('/', (req, res) => {
     res.write('Users');
@@ -20,7 +21,7 @@ router.post('/create', (req, res) => {
         res.end()
         return payload.status 
     }
-    userController.createUsers(req.body).then(resp => {
+    baseController.createDocument(req.body, 'User', ['_id','__v'], titleAndImageSchema).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -34,7 +35,7 @@ router.get('/read', (req, res) => {
         res.end()
         return payload.status 
     }
-    userController.readUsers(req.body).then(resp => {
+    baseController.readDocuments(req.body, 'User', ['_id','__v']).then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -48,7 +49,7 @@ router.post('/update', (req, res) => {
         res.end()
         return payload.status 
     }
-    userController.updateUser(req.body).then(resp => {
+    baseController.updateDocument(req.body, 'User').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
@@ -62,7 +63,7 @@ router.post('/delete', (req, res) => {
         res.end()
         return payload.status 
     }
-    userController.deleteUsers(req.body).then(resp => {
+    baseController.deleteDocuments(req.body, 'User').then(resp => {
         res.write(JSON.stringify(resp));
         res.send();
     })
