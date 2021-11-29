@@ -1,13 +1,11 @@
 const utils = require('../kernel/utils');
 const mongoose = require('mongoose');
-const titleAndImageSchema = require("../models/titleAndImage")
+/* const titleAndImageSchema = require("../models/titleAndImage")
 const PartnerModel = require("../models/titleAndImage")
 const TechnologyModel = require("../models/titleAndImage")
-const CertificationModel = require("../models/titleAndImage")
+const CertificationModel = require("../models/titleAndImage") */
 
-/* Ce fichier sert à effectuer des opérations CRUD sur le modèle document.
-Les exemple cités sont parlent tous de partenaires mais la syntaxe est exactement la même
-pour les modèles techniologies et certifications également. */
+/* Ce fichier sert à effectuer des opérations CRUD basiques pour n'importe quel modèle. */
 
 /* CREATE, USAGE:
     Syntaxe body:
@@ -17,12 +15,10 @@ pour les modèles techniologies et certifications également. */
     }
     */
 module.exports.createDocument = async function(body, modelName, exclusions, schemaObject){
-    if(Object.keys(body).length==0) return {
-        "status": "400 Bad request",
-        "message": "Body required"
+    if(Object.keys(body).length==0){
+        return {"status":400}
     };
     const requiredProperties = utils.getModelProperties(modelName, exclusions);
-
     try {
         // Créée un modèle
         const model = mongoose.model(modelName, schemaObject)
@@ -40,29 +36,17 @@ module.exports.createDocument = async function(body, modelName, exclusions, sche
         }})
         // S'il n'y a pas assez de propriétés validées pour que l'opération d'écriture soit validée, erreur
         if(validatedProps.length!=requiredProperties.length){
-            return ({
-                "status": "400 Bad request",
-                "message": "Empty property"
-            })
+            return {"status":400, "statusMessage":"Invalid or empty property"}
         }else{
             const response = await newDocument.save()
-            return ({
-                "status": "201 Created",
-                "data": response
-            })
+            return {"status":201, "data":response}
         }
     } catch(err) {
         if(err.name=='TypeError'){
-            return ({
-                "status": "409 Conflict",
-                "message": "A document may already exist by that name"
-            })
+            return {"status":409, "statusMessage":"Conflict : A document may already exist by that name"}
         }else{
             console.log(err);
-            return ({
-                "status": "500 Internal server error",
-                "error": err.name
-            })
+            return {"status":500, "data":err.name}
         }
     }
 }
@@ -95,7 +79,7 @@ module.exports.createDocument = async function(body, modelName, exclusions, sche
 */
 module.exports.readDocuments = async function(body, modelName, exclusions){
     const requiredProperties = ['skip','limit'].concat(utils.getModelProperties(modelName, exclusions));
-    const bodyprops = Object.getOwnPropertyNames(body)
+    const propertiesProvided = Object.getOwnPropertyNames(body)
     const documentModel = mongoose.model(modelName)
     const data = [];
     const skip = body.skip?Number(body.skip):0;
@@ -103,34 +87,32 @@ module.exports.readDocuments = async function(body, modelName, exclusions){
     if(body.filters){
         // Recherche avec body et requêtes multiples
         for(let filter of body.filters){
-            console.log('filter:', filter)
+            const propertiesProvidedInFilter = Object.getOwnPropertyNames(filter)
+                // On check si des propriétés incorrectes ont été fournies
+                if(Object.keys(body).length!=0){
+                    if(requiredProperties.filter((prop)=>{return propertiesProvidedInFilter.includes(prop)}).length==0){
+                        return {"status":400, "statusMessage":"Unknown property"}
+                    }
+                }
             try {
-                const documentToFind = utils.objectToTitleAndImage(filter);
-                await documentModel.find(documentToFind).exec().then(results => {
+                await documentModel.find(filter).exec().then(results => {
                     for(let result of results){
                         data.push(result);
                     }
                 })
+                return {"status":200, "data":data}
             } catch(err) {
                 console.log(err);
-                return {
-                    "status": "500 Internal server error",
-                    "error": err.name
-                }
+                return {"status":400, "data":err.name}
             }
         }
     }
     // On check si des propriétés incorrectes ont été fournies
     if(Object.keys(body).length!=0){
-        console.log(requiredProperties.filter((prop)=>{return bodyprops.includes(prop)}))
-        if(requiredProperties.filter((prop)=>{return bodyprops.includes(prop)}).length==0){
-            return {
-                "status": "400 Bad request",
-                "message": "Unknown property"
-            };
+        if(requiredProperties.filter((prop)=>{return propertiesProvided.includes(prop)}).length==0){
+            return {"status":400, "statusMessage":"Unknown property"}
         }
     }
-
     // Requête unique ou sans body
     const filter = body ? body : undefined
     try {
@@ -138,33 +120,21 @@ module.exports.readDocuments = async function(body, modelName, exclusions){
             for(let document of documents) data.push(document);
         })
         if(data!=''){
-            return {
-                "status": "200 OK",
-                "data": data
-            }
+            return {"status":200, "data":data}
         }else{
-            return {
-                "status": "404 Not found",
-                "message": "Resource not found"
-            }
+            return {"status":404}
         }
     } catch(err) {
         console.log(err);
         if(err.name=='TypeError'){
-            return {
-                "status": "500 Internal server error",
-                "message": "The given document was most likely not found"
-            }
+            return {"status":500, "statusMessage":"Not found"}
         }
-        return {
-            "status": "500 Internal server error",
-            "error": err.name
-        }
+        return {"status":500, "data":err.name}
     }
 }
 
 /* UPDATE, USAGE:
-    Une seule opération d'update possible par requête, syntaxe:
+    Syntaxe:
     {
         "filter": {
             "name": "CGI"
@@ -178,23 +148,23 @@ module.exports.updateDocument = async function(body, modelName){
     const documentModel = mongoose.model(modelName)
     let response = {};
     if(Object.keys(body).length == 0) {
-        return {
-            "status": "400 Bad request",
-            "message": "Body required"
-        }
+        return {"status":400, "error":"Body required"}
     }
-    if(body.filter && body.replace && !(body.filter=='' || body.replace=='')){
+    if(body.filter && body.replace){
         try {
+            if(Object.values(body.filter).every(value=> { if(value==''){ return true } })){
+                throw SyntaxError
+            };
+            if(Object.values(body.replace).every(value=> { if(value==''){ return true } })){
+                throw SyntaxError
+            };
             // On vérifie si un objet n'existe pas déjà avec les informations données en entrée
             await documentModel.find(body.replace).exec().then(document => {if(document!=''){throw Error}})
             await documentModel.find(body.filter).exec().then(document => {
                 if(!document[0]._id) throw TypeError
                 response = documentModel.findByIdAndUpdate(document[0]._id, body.replace).then(response => {
                     if(response!=null){
-                        return {
-                            "status": "200 OK",
-                            "data": response
-                        }
+                        return {"status":200, "data":response}
                     }
                     throw TypeError
                 })  
@@ -203,77 +173,42 @@ module.exports.updateDocument = async function(body, modelName){
         } catch(err) {
             console.log(err);
             if(err.name=='TypeError'){
-                return {
-                    "status": "404 Not found",
-                    "message": "Resource not found"
-                }
+                return {"status":404}
             }
-            return {
-                "status": "500 Internal server error",
-                "error": err.name
+            if(err.name=='Error'){
+                return {"status":409, "data":"Conflict : A document may already exist by that name"}
             }
+            if(err.name=='SyntaxError'){
+                return {"status":500, "data":"Empty values are not allowed"}
+            }
+            return {"status":500, "data":err.name}
         }
     }
-    return {
-        "status": "400 Bad request",
-        "message": "Body required"
-    }
+    return {"status":400, "statusMessage":"Body required"}
 }
 
 /* DELETE, USAGE:
-    Syntaxe body avec plusieurs entrées à supprimer:
-    {
-        "filters": [
-            {
-                "name": "Saint-Gobain"
-            },
-            {
-                "name": "CGI"
-            }
-        ]
-    }
-    Syntaxe simple pour suppression d'une seule entrée par requête:
+    Syntaxe:
     {"name": "Saint-Gobain"}
 */
-module.exports.deleteDocuments = async function(body, modelName){
-    console.log(body)
-    if(Object.keys(body).length == 0) return {
-        "status": "400 Bad request",
-        "message": "Body required"
-    };
-    const response = [];
-    if(body.filters){
-        for(let filter of body.filters){
-            try {
-                response.push(!(await searchAndDestroy(filter, modelName)) ? '200 OK' : undefined)
-            } catch(err) { 
-                response.push({
-                    "status": "404 Not found",
-                    "message": "Resource not found"
-                }) 
-            }
-        }
-        return response
+module.exports.deleteDocument = async function(body, modelName, exclusions){
+    if(Object.keys(body).length == 0){
+        return {"status":400, "statusMessage":"Body required"}
+    } 
+    const requiredProperties = ['skip','limit'].concat(utils.getModelProperties(modelName, exclusions));
+    const propertiesProvided = Object.getOwnPropertyNames(body)
+    if(requiredProperties.filter((prop)=>{return propertiesProvided.includes(prop)}).length==0){
+        return {"status":400, "statusMessage":"Unknown property"}
     }
-    const filter = body
+    const response = [];
     try {
-        return !(await searchAndDestroy(filter, modelName)) ? '200 OK' :{
-            "status": "404 not found",
-            "message": "Resource not found"
-        };
+        return !(await searchAndDestroy(body, modelName)) ? {"status":200, "statusMessage":"Deleted"} : undefined;
     } catch(err) {
         console.log(err);
         if(err.name=='TypeError'){
-            return {
-                "status": "500 Internal server error",
-                "error": err.name,
-                "message": "The given document was most likely not found"
-            }
+            return {"status":404, "statusMessage":"Not found"}
         }
-        return {
-            "status": "500 Internal server error",
-            "error": err.name
-        }
+        return {"status":500, "data":err.name}
     }   
 }
 

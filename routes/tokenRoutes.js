@@ -11,7 +11,7 @@ const users = {
     user2: 'password2'
 }
 
-router.post('/generate', (req, res) => {
+router.post('/login', (req, res) => {
     const { username, password } = req.body
     // Remplacer la 3e condition pour check en base si les identifiants matchent bien
     if (!username || !password || users[username] !== password) return res.status(401).end()

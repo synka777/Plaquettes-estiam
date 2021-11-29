@@ -22,7 +22,9 @@ router.post('/create', (req, res) => {
         return payload.status 
     }
     baseController.createDocument(req.body, 'Partner', ['_id','__v'], titleAndImageSchema).then(resp => {
-        res.write(JSON.stringify(resp));
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });
@@ -36,7 +38,9 @@ router.get('/read', (req, res) => {
         return payload.status 
     }
     baseController.readDocuments(req.body, 'Partner', ['_id','__v']).then(resp => {
-        res.write(JSON.stringify(resp));
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });
@@ -50,7 +54,9 @@ router.post('/update', (req, res) => {
         return payload.status 
     }
     baseController.updateDocument(req.body, 'Partner').then(resp => {
-        res.write(JSON.stringify(resp));
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });
@@ -63,8 +69,10 @@ router.post('/delete', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.deleteDocuments(req.body, 'Partner').then(resp => {
-        res.write(JSON.stringify(resp));
+    baseController.deleteDocument(req.body, 'Partner', ['logo','_id','__v']).then(resp => {
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });

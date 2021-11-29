@@ -5,7 +5,7 @@ const baseController = require("../controllers/baseController");
 const userSchema = require("../models/userModel")
 
 router.get('/', (req, res) => {
-    res.write('Users');
+    res.write('Partenaires');
     res.write(`
         Pour tester l'API, utiliser Postman, Insomnia ou autre moyen
         permettant d'inclure un body avec les requetes HTTP.
@@ -21,8 +21,10 @@ router.post('/create', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.createDocument(req.body, 'User', ['_id','__v'], titleAndImageSchema).then(resp => {
-        res.write(JSON.stringify(resp));
+    baseController.createDocument(req.body, 'User', ['_id','__v'], userSchema).then(resp => {
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });
@@ -35,8 +37,10 @@ router.get('/read', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.readDocuments(req.body, 'User', ['_id','__v']).then(resp => {
-        res.write(JSON.stringify(resp));
+    baseController.readDocuments(req.body, 'User', ['password','_id','__v']).then(resp => {
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });
@@ -50,7 +54,9 @@ router.post('/update', (req, res) => {
         return payload.status 
     }
     baseController.updateDocument(req.body, 'User').then(resp => {
-        res.write(JSON.stringify(resp));
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });
@@ -63,8 +69,10 @@ router.post('/delete', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.deleteDocuments(req.body, 'User').then(resp => {
-        res.write(JSON.stringify(resp));
+    baseController.deleteDocument(req.body, 'User', ['password','_id','__v']).then(resp => {
+        if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
+        if(resp.data){(res.write(JSON.stringify(resp.data)))}
+        res.status(Number(resp.status))
         res.send();
     })
 });
