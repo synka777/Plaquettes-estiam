@@ -1,30 +1,25 @@
 const express = require("express");
 const router = express.Router()
-
+const baseController = require("../controllers/baseController");
 const utils = require('../kernel/utils.js')
 const jwt = require('jsonwebtoken')
 const jwtExpirySeconds = 9000
 
-// A supprimer lorsqu'un modèle utilisateur et opérations CRUD de user seront créés
-const users = {
-    user1: 'password1',
-    user2: 'password2'
-}
-
 router.post('/login', (req, res) => {
-    const { username, password } = req.body
-    // Remplacer la 3e condition pour check en base si les identifiants matchent bien
-    if (!username || !password || users[username] !== password) return res.status(401).end()
 
-    // Créée un nouveau token avec le nom d'utilisateur dans le payload avec expiration après 300s
-    // ajouter le role utilisateur dans le payload quand les roles seront créés
-    const token = jwt.sign({ username }, utils.jwtKey, {
-        algorithm: 'HS256',
-        expiresIn: jwtExpirySeconds
+    baseController.readDocuments(req.body, 'User', ['_id','__v']).then(resp => {
+        if(resp.status!=200){res.status(401).end()}
+        const username = req.body.username
+        // Créée un nouveau token avec le nom d'utilisateur dans le payload avec expiration après 300s
+        // ajouter le role utilisateur dans le payload quand les roles seront créés
+        const token = jwt.sign({ username }, utils.jwtKey, {
+            algorithm: 'HS256',
+            expiresIn: jwtExpirySeconds
+        })
+        // on renvoie le token en tant que cookie
+        res.cookie('token', token, { maxAge: jwtExpirySeconds * 1000 })
+        res.end()
     })
-    // on renvoie le token en tant que cookie
-    res.cookie('token', token, { maxAge: jwtExpirySeconds * 1000 })
-    res.end()
 })
 
 // A voir si à garder ou non
