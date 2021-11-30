@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const utils = require('../kernel/utils.js');
 const baseController = require("../controllers/baseController");
-const roleSchema = require("../models/roleModel")
+const permissionSchema = require("../models/permissionModel")
 
 router.get('/', (req, res) => {
-    res.write('Roles');
+    res.write('Permissions');
     res.write(`
         Pour tester l'API, utiliser Postman, Insomnia ou autre moyen
         permettant d'inclure un body avec les requetes HTTP.
@@ -21,7 +21,7 @@ router.post('/create', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.createDocument(req.body, 'Role', ['permissionsId','_id','__v'], roleSchema).then(resp => {
+    baseController.createDocument(req.body, 'Permission', ['_id','__v'], permissionSchema).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -37,7 +37,7 @@ router.get('/read', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.readDocuments(req.body, 'Role', ['permissionsId','_id','__v']).then(resp => {
+    baseController.readDocuments(req.body, 'Permission', ['_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -53,7 +53,7 @@ router.post('/update', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.updateDocument(req.body, 'Role').then(resp => {
+    baseController.updateDocument(req.body, 'Permission').then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -69,7 +69,7 @@ router.post('/delete', (req, res) => {
         res.end()
         return payload.status 
     }
-    baseController.deleteDocument(req.body, 'Role', ['permissionsId','_id','__v']).then(resp => {
+    baseController.deleteDocument(req.body, 'Permission', ['_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))

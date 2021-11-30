@@ -18,7 +18,10 @@ module.exports.createDocument = async function(body, modelName, exclusions, sche
     if(Object.keys(body).length==0){
         return {"status":400}
     };
+    console.log('model name asked', modelName)
     const requiredProperties = utils.getModelProperties(modelName, exclusions);
+    console.log(body)
+    console.log(requiredProperties)
     try {
         // Créée un modèle
         const model = mongoose.model(modelName, schemaObject)

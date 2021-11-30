@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken')
 const jwtExpirySeconds = 9000
 
 router.post('/login', (req, res) => {
-
     baseController.readDocuments(req.body, 'User', ['_id','__v']).then(resp => {
         if(resp.status!=200){res.status(401).end()}
         const username = req.body.username
