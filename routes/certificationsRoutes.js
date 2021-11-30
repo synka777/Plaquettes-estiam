@@ -13,13 +13,18 @@ router.get('/', (req, res) => {
     res.send();
 })
 
-router.post('/create', (req, res) => {
+router.post('/create', async(req, res) => {
     const token = req.cookies.token
-    if (!token) return res.status(401).end()
-    const payload = utils.verifyToken(res, utils.jwtKey, token)
-    if(payload.status){ 
-        res.end()
-        return payload.status 
+    try{
+        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        if(payload.status){ 
+            res.end()
+            return payload.status 
+        }
+        const authorized = await utils.accessGranted(token, 'Partner')
+        if(!authorized||authorized==''||authorized=='R') return res.status(401).end()
+    }catch(e){
+        return res.status(401).end()
     }
     baseController.createDocument(req.body, 'Certification', ['_id','__v'], titleAndImageSchema).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
@@ -29,13 +34,18 @@ router.post('/create', (req, res) => {
     })
 });
 
-router.get('/read', (req, res) => {
+router.get('/read', async(req, res) => {
     const token = req.cookies.token
-    if (!token) return res.status(401).end()
-    const payload = utils.verifyToken(res, utils.jwtKey, token)
-    if(payload.status){ 
-        res.end()
-        return payload.status 
+    try{
+        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        if(payload.status){ 
+            res.end()
+            return payload.status 
+        }
+        const authorized = await utils.accessGranted(token, 'Partner')
+        if(!authorized||authorized=='') return res.status(401).end()
+    }catch(e){
+        return res.status(401).end()
     }
     baseController.readDocuments(req.body, 'Certification', ['_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
@@ -45,13 +55,18 @@ router.get('/read', (req, res) => {
     })
 });
 
-router.post('/update', (req, res) => {
+router.post('/update', async(req, res) => {
     const token = req.cookies.token
-    if (!token) return res.status(401).end()
-    const payload = utils.verifyToken(res, utils.jwtKey, token)
-    if(payload.status){ 
-        res.end()
-        return payload.status 
+    try{
+        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        if(payload.status){ 
+            res.end()
+            return payload.status 
+        }
+        const authorized = await utils.accessGranted(token, 'Partner')
+        if(!authorized||authorized==''||authorized=='R') return res.status(401).end()
+    }catch(e){
+        return res.status(401).end()
     }
     baseController.updateDocument(req.body, 'Certification').then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
@@ -61,13 +76,18 @@ router.post('/update', (req, res) => {
     })
 });
 
-router.post('/delete', (req, res) => {
+router.post('/delete', async(req, res) => {
     const token = req.cookies.token
-    if (!token) return res.status(401).end()
-    const payload = utils.verifyToken(res, utils.jwtKey, token)
-    if(payload.status){ 
-        res.end()
-        return payload.status 
+    try{
+        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        if(payload.status){ 
+            res.end()
+            return payload.status 
+        }
+        const authorized = await utils.accessGranted(token, 'Partner')
+        if(!authorized||authorized==''||authorized=='R') return res.status(401).end()
+    }catch(e){
+        return res.status(401).end()
     }
     baseController.deleteDocument(req.body, 'Certification', ['logo','_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
