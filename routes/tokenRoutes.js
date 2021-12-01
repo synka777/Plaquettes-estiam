@@ -6,19 +6,33 @@ const jwt = require('jsonwebtoken')
 const jwtExpirySeconds = 9000
 
 router.post('/login', (req, res) => {
-    baseController.readDocuments(req.body, 'User', ['_id','__v']).then(resp => {
-        if(resp.status!=200){res.status(401).end()}
-        const username = req.body.username
-        // Créée un nouveau token avec le nom d'utilisateur dans le payload avec expiration après 300s
-        // ajouter le role utilisateur dans le payload quand les roles seront créés
+    const { admUsername, admPasswd} = utils.defaultAdmin;
+    const { username, password} = req.body;
+    console.log(username, password)
+    console.log(admUsername, admPasswd)
+    if(username == admUsername && password == admPasswd){
+        console.log('all good')
         const token = jwt.sign({ username }, utils.jwtKey, {
             algorithm: 'HS256',
             expiresIn: jwtExpirySeconds
         })
-        // on renvoie le token en tant que cookie
         res.cookie('token', token, { maxAge: jwtExpirySeconds * 1000 })
         res.end()
-    })
+    }else{
+        baseController.readDocuments(req.body, 'User', ['_id','__v']).then(resp => {
+            if(resp.status!=200){res.status(401).end()}
+            const username = req.body.username
+            // Créée un nouveau token avec le nom d'utilisateur dans le payload avec expiration après 300s
+            // ajouter le role utilisateur dans le payload quand les roles seront créés
+            const token = jwt.sign({ username }, utils.jwtKey, {
+                algorithm: 'HS256',
+                expiresIn: jwtExpirySeconds
+            })
+            // on renvoie le token en tant que cookie
+            res.cookie('token', token, { maxAge: jwtExpirySeconds * 1000 })
+            res.end()
+        })
+    }
 })
 
 // A voir si à garder ou non

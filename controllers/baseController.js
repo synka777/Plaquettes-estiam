@@ -1,9 +1,5 @@
 const utils = require('../kernel/utils');
 const mongoose = require('mongoose');
-/* const titleAndImageSchema = require("../models/titleAndImage")
-const PartnerModel = require("../models/titleAndImage")
-const TechnologyModel = require("../models/titleAndImage")
-const CertificationModel = require("../models/titleAndImage") */
 
 /* Ce fichier sert à effectuer des opérations CRUD basiques pour n'importe quel modèle. */
 
