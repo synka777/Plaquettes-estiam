@@ -5,13 +5,12 @@ const utils = require('../kernel/utils.js')
 const jwt = require('jsonwebtoken')
 const jwtExpirySeconds = 9000
 
+const resource = '';  
+
 router.post('/login', (req, res) => {
     const { admUsername, admPasswd} = utils.defaultAdmin;
     const { username, password} = req.body;
-    console.log(username, password)
-    console.log(admUsername, admPasswd)
     if(username == admUsername && password == admPasswd){
-        console.log('all good')
         const token = jwt.sign({ username }, utils.jwtKey, {
             algorithm: 'HS256',
             expiresIn: jwtExpirySeconds

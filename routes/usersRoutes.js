@@ -4,6 +4,8 @@ const utils = require('../kernel/utils.js');
 const baseController = require("../controllers/baseController");
 const userSchema = require("../models/userModel")
 
+const resource = 'User';  
+
 router.get('/', (req, res) => {
     res.write('Users');
     res.write(`
@@ -21,12 +23,12 @@ router.post('/create', async(req, res) => {
             res.end()
             return payload.status 
         }
-        const authorized = await utils.accessGranted(token, 'Partner')
+        const authorized = await utils.accessGranted(token, resource)
         if(!authorized||authorized==''||authorized=='R') return res.status(401).end()
     }catch(e){
         return res.status(401).end()
     }
-    baseController.createDocument(req.body, 'User', ['_id','__v'], userSchema).then(resp => {
+    baseController.createDocument(req.body, resource, ['_id','__v'], userSchema).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -42,12 +44,12 @@ router.get('/read', async(req, res) => {
             res.end()
             return payload.status 
         }
-        const authorized = await utils.accessGranted(token, 'Partner')
+        const authorized = await utils.accessGranted(token, resource)
         if(!authorized||authorized=='') return res.status(401).end()
     }catch(e){
         return res.status(401).end()
     }
-    baseController.readDocuments(req.body, 'User', ['password','_id','__v']).then(resp => {
+    baseController.readDocuments(req.body, resource, ['password','_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -63,12 +65,12 @@ router.post('/update', async(req, res) => {
             res.end()
             return payload.status 
         }
-        const authorized = await utils.accessGranted(token, 'Partner')
+        const authorized = await utils.accessGranted(token, resource)
         if(!authorized||authorized==''||authorized=='R') return res.status(401).end()
     }catch(e){
         return res.status(401).end()
     }
-    baseController.updateDocument(req.body, 'User').then(resp => {
+    baseController.updateDocument(req.body, resource).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -84,12 +86,12 @@ router.post('/delete', async(req, res) => {
             res.end()
             return payload.status 
         }
-        const authorized = await utils.accessGranted(token, 'Partner')
+        const authorized = await utils.accessGranted(token, resource)
         if(!authorized||authorized==''||authorized=='R') return res.status(401).end()
     }catch(e){
         return res.status(401).end()
     }
-    baseController.deleteDocument(req.body, 'User', ['password','_id','__v']).then(resp => {
+    baseController.deleteDocument(req.body, resource, ['password','_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
