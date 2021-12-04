@@ -1,46 +1,26 @@
-const express = require("express");
-const app = express();
-const cookieParser = require('cookie-parser');
-const cors = require('cors');
-const router = express.Router();
-const db = require('./kernel/db');
+const express = require('express')
+const app = express()
+const mongoose = require('mongoose');
+const bodyparser = require('body-parser')
+const RouteUsers = require('./router/user')
 
-const tokenMgmtRoutes = require("./routes/tokenRoutes.js");
-const usersRoutes = require("./routes/usersRoutes.js");
-const rolesRoutes = require('./routes/rolesRoutes.js');
-const partnersRoutes = require('./routes/partnersRoutes.js');
-const permissionsRoutes = require('./routes/permissionsRoutes')
-const technologiesRoutes = require('./routes/technologiesRoutes.js');
-const certificationsRoutes = require('./routes/certificationsRoutes.js');
 
-db.connect();
+mongoose.connect('mongodb+srv://viny:test123@cluster0.ur6gj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',{
+    
+}).then( ()=>{
+    console.log("connexion success")
+}).catch( (error)=>{
+    console.log(error)
+});
 
-router.get('/', (req, res) => {
-    res.write('ROOT');
-    res.write(`
-        Available endpoints:
-        /users
-        /roles
-        /token
-        /partners
-        /permissions
-        /technologies
-        /certifications
-    `);
-    res.send();
-})
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors());
+app.use(bodyparser.json())
+app.use('/admin/users/add/', RouteUsers)
+app.use('/admin/users/list/', RouteUsers)
+app.use('/admin/user/', RouteUsers)
+app.use('/admin/users/update', RouteUsers)
+app.use('/admin/users/delete', RouteUsers)
 
-app.use('/', router);
-app.use('/users', usersRoutes);
-app.use('/roles', rolesRoutes);
-app.use('/token', tokenMgmtRoutes);
-app.use('/partners', partnersRoutes);
-app.use('/permissions', permissionsRoutes);
-app.use('/technologies', technologiesRoutes);
-app.use('/certifications', certificationsRoutes);
 
-module.exports = app;
+
+module.exports = app

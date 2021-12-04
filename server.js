@@ -1,10 +1,8 @@
-const app = require('./app')
 const http = require('http')
+const app = require('./app')
 
+const server = http.createServer(app)
 
-var port = 3000
-app.set('port', port)
-
-
-var server = http.createServer(app);
-server.listen(port)
+server.listen(3000, ()=>{
+    console.log("server is runing")
+})
