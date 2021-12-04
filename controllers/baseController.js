@@ -20,7 +20,7 @@ module.exports.createDocument = async function(body, modelName, exclusions, sche
         const model = mongoose.model(modelName, schemaObject)
         const newDocument = new model(body)
         
-        // Si un partenaire existe déjà avec ce nom, erreur
+        // Si un document existe déjà avec ce nom, erreur
         if(await model.findOne(body).exec()) throw TypeError
 
         /* Puis on check si les propriétés d'objets requises pour sauvegarder le modèle

@@ -8,6 +8,7 @@ const db = require('./kernel/db');
 const tokenMgmtRoutes = require("./routes/tokenRoutes.js");
 const usersRoutes = require("./routes/usersRoutes.js");
 const rolesRoutes = require('./routes/rolesRoutes.js');
+const cursusRoutes = require('./routes/cursusesRoutes.js')
 const partnersRoutes = require('./routes/partnersRoutes.js');
 const permissionsRoutes = require('./routes/permissionsRoutes')
 const technologiesRoutes = require('./routes/technologiesRoutes.js');
@@ -25,6 +26,7 @@ router.get('/', (req, res) => {
         /roles
         /token
         /campuses
+        /cursuses
         /partners
         /permissions
         /technologies
@@ -42,11 +44,12 @@ app.use('/', router);
 app.use('/users', usersRoutes);
 app.use('/roles', rolesRoutes);
 app.use('/token', tokenMgmtRoutes);
+app.use('/cursuses', cursusRoutes);
+app.use('/campuses', campusesRoutes);
 app.use('/partners', partnersRoutes);
 app.use('/permissions', permissionsRoutes);
 app.use('/technologies', technologiesRoutes);
 app.use('/certifications', certificationsRoutes);
-app.use('/campuses', campusesRoutes);
 app.use('/committee-members', committeeMembersRoutes);
 
 module.exports = app;
