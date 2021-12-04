@@ -15,6 +15,9 @@ const technologiesRoutes = require('./routes/technologiesRoutes.js');
 const certificationsRoutes = require('./routes/certificationsRoutes.js');
 const campusesRoutes = require('./routes/campusesRoutes.js');
 const committeeMembersRoutes = require('./routes/committeeMembersRoutes');
+const baseProgramsRoutes = require('./routes/baseProgramsRoutes');
+const classYearRoutes = require('./routes/classYearRoutes');
+const specialtiesRoutes = require('./routes/specialtiesRoutes');
 
 db.connect();
 
@@ -31,7 +34,10 @@ router.get('/', (req, res) => {
         /permissions
         /technologies
         /certifications
+        /specialty-elems
+        /class-year-elems
         /committee-members
+        /base-program-elems
     `);
     res.send();
 })
@@ -49,7 +55,10 @@ app.use('/campuses', campusesRoutes);
 app.use('/partners', partnersRoutes);
 app.use('/permissions', permissionsRoutes);
 app.use('/technologies', technologiesRoutes);
+app.use('/class-year-elems', classYearRoutes);
+app.use('/specialty-elems', specialtiesRoutes);
 app.use('/certifications', certificationsRoutes);
+app.use('/base-program-elems', baseProgramsRoutes);
 app.use('/committee-members', committeeMembersRoutes);
 
 module.exports = app;
