@@ -6,8 +6,6 @@ const utils = require('../../kernel/utils.js')
 const jwt = require('jsonwebtoken')
 const jwtExpirySeconds = 9000
 
-const resource = '';  
-
 router.post('/login', (req, res) => {
     const { admUsername, admPasswd} = utils.defaultAdmin;
     const { username, password} = req.body;
@@ -33,21 +31,6 @@ router.post('/login', (req, res) => {
             res.end()
         })
     }
-})
-
-// A voir si à garder ou non
-router.get('/welcome', (req, res) => {
-    // On récupère le token des cookies associés à la requête
-    const token = req.cookies.token
-    if (!token) return res.status(401).end()
-    const payload = utils.verifyToken(res, utils.jwtKey, token)
-    if(payload.status){ 
-        res.end()
-        return payload.status 
-    }
-
-    // A voir si utilité
-    res.send(`Welcome ${payload.username}!`)
 })
 
 router.post('/refresh', (req, res) => {

@@ -33,7 +33,7 @@ db.connect();
 router.get('/', (req, res) => {
     res.write('ROOT');
     res.write(`
-        Available endpoints:
+        Available routes:
         /users
         /roles
         /token
@@ -47,6 +47,13 @@ router.get('/', (req, res) => {
         /common-base-elems
         /committee-members
         /base-program-elems
+
+        Each route includes basic CRUD endpoints.
+
+        To test this API, you can use the Insomnia REST client (similar to Postman):
+        https://updates.insomnia.rest/downloads/windows/latest?app=com.insomnia.app&source=website
+
+
     `);
     res.send();
 })

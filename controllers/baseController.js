@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 /* Ce fichier sert à effectuer des opérations CRUD basiques pour n'importe quel modèle. */
 
 /* CREATE, USAGE:
-    Syntaxe body:
+    Ex syntaxe avec partenaires:
     {
         "name": "CGI",
         "logo": "https: //upload.wikimedia.org/wikipedia/commons/thumb/3/32/CGI_logo.svg/1200px-CGI_logo.svg.png"
@@ -48,8 +48,8 @@ module.exports.createDocument = async function(body, modelName, exclusions, sche
 }
 
 /* READ, USAGE:
-    - Pas de body: Renvoie les liste de partenaires au complet sans condition d'affichage
-    - Body avec plusieurs partenaires dans la même requête:
+    - Pas de body: Renvoie une liste de documents au complet sans condition d'affichage
+    - Body avec plusieurs documents dans la même requête:
     {
         "filters": [
             {
@@ -130,7 +130,7 @@ module.exports.readDocuments = async function(body, modelName, exclusions){
 }
 
 /* UPDATE, USAGE:
-    Syntaxe:
+    Ex syntaxe avec partenaires:
     {
         "filter": {
             "name": "CGI"
@@ -184,7 +184,7 @@ module.exports.updateDocument = async function(body, modelName){
 }
 
 /* DELETE, USAGE:
-    Syntaxe:
+    Ex syntaxe avec partenaires:
     {"name": "Saint-Gobain"}
 */
 module.exports.deleteDocument = async function(body, modelName, exclusions){
