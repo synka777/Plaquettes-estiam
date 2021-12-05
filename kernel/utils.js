@@ -8,9 +8,9 @@ module.exports.defaultAdmin = {
     admPasswd: 'h4xx0rz!'
 }
 
-module.exports.verifyToken = (res, jwtKey, token) => {
+module.exports.verifyToken = (res, token) => {
     try {
-        return jwt.verify(token, jwtKey)
+        return jwt.verify(token, this.jwtKey)
     } catch (e) {
         if (e instanceof jwt.JsonWebTokenError) {
             return res.status(401).end()

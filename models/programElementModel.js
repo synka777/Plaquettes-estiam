@@ -13,7 +13,7 @@ const programElementSchema = new Schema({
     year: { name: String, type: Number }
 });
 
-module.exports = mongoose.model('ClassYearElem', programElementSchema, 'ClassYearElems');
-module.exports = mongoose.model('BaseProgramElem', programElementSchema, 'BaseProgramElems');
+module.exports = mongoose.model('BaseCourseElem', programElementSchema, 'BaseCourseElems');
+module.exports = mongoose.model('CommonBaseElem', programElementSchema, 'CommonBaseElems');
 module.exports = mongoose.model('SpecialtyElem', programElementSchema, 'SpecialtyElems');
 module.exports = programElementSchema;

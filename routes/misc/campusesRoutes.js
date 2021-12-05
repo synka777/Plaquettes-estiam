@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const utils = require('../kernel/utils.js');
-const baseController = require("../controllers/baseController");
-const titleAndImageSchema = require("../models/titleAndImage")
+const utils = require('../../kernel/utils.js');
+const baseController = require("../../controllers/baseController");
+const campusSchema = require("../../models/campusModel")
 
-const resource = 'Certification';  
+const resource = 'Campus';  
 
 router.get('/', (req, res) => {
-    res.write('Certifications');
+    res.write('Campus');
     res.write(`
         Pour tester l'API, utiliser Postman, Insomnia ou autre moyen
         permettant d'inclure un body avec les requetes HTTP.
@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 router.post('/create', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -28,7 +28,7 @@ router.post('/create', async(req, res) => {
     }catch(e){
         return res.status(401).end()
     }
-    baseController.createDocument(req.body, resource, ['_id','__v'], titleAndImageSchema).then(resp => {
+    baseController.createDocument(req.body, resource, ['_id','__v'], campusSchema).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -39,7 +39,7 @@ router.post('/create', async(req, res) => {
 router.get('/read', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -49,7 +49,7 @@ router.get('/read', async(req, res) => {
     }catch(e){
         return res.status(401).end()
     }
-    baseController.readDocuments(req.body, resource, ['_id','__v']).then(resp => {
+    baseController.readDocuments(req.body, resource, ['description','image','_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))
@@ -60,7 +60,7 @@ router.get('/read', async(req, res) => {
 router.post('/update', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -81,7 +81,7 @@ router.post('/update', async(req, res) => {
 router.post('/delete', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -91,7 +91,7 @@ router.post('/delete', async(req, res) => {
     }catch(e){
         return res.status(401).end()
     }
-    baseController.deleteDocument(req.body, resource, ['logo','_id','__v']).then(resp => {
+    baseController.deleteDocument(req.body, resource, ['description','image','_id','__v']).then(resp => {
         if(resp.statusMessage){ res.statusMessage = resp.statusMessage }
         if(resp.data){(res.write(JSON.stringify(resp.data)))}
         res.status(Number(resp.status))

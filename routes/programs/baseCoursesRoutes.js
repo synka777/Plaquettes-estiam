@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const utils = require('../kernel/utils.js');
-const baseController = require("../controllers/baseController");
-const programElementSchema = require("../models/programElementModel"),
+const utils = require('../../kernel/utils.js');
+const baseController = require("../../controllers/baseController");
+const programElementSchema = require("../../models/programElementModel");
 
-const resource = 'BaseProgramElem';  
+const resource = 'BaseCourseElem';  
 
 router.get('/', (req, res) => {
-    res.write('Base program elements');
+    res.write('Class program for a given year');
     res.write(`
         Pour tester l'API, utiliser Postman, Insomnia ou autre moyen
         permettant d'inclure un body avec les requetes HTTP.
@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 router.post('/create', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -39,7 +39,7 @@ router.post('/create', async(req, res) => {
 router.get('/read', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -60,7 +60,7 @@ router.get('/read', async(req, res) => {
 router.post('/update', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -81,7 +81,7 @@ router.post('/update', async(req, res) => {
 router.post('/delete', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 

@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const utils = require('../kernel/utils.js');
-const baseController = require("../controllers/baseController");
-const titleAndImageSchema = require("../models/titleAndImage")
+const utils = require('../../kernel/utils');
+const baseController = require("../../controllers/baseController");
+const titleAndImageSchema = require("../../models/titleAndImage")
 
-const resource = 'Partner';  
+const resource = 'Certification';  
 
 router.get('/', (req, res) => {
-    res.write('Partenaires');
+    res.write('Certifications');
     res.write(`
         Pour tester l'API, utiliser Postman, Insomnia ou autre moyen
         permettant d'inclure un body avec les requetes HTTP.
@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 router.post('/create', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -39,13 +39,13 @@ router.post('/create', async(req, res) => {
 router.get('/read', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
         }
         const authorized = await utils.accessGranted(token, resource)
-        if(!authorized||authorized==''||authorized=='R') return res.status(401).end()
+        if(!authorized||authorized=='') return res.status(401).end()
     }catch(e){
         return res.status(401).end()
     }
@@ -60,7 +60,7 @@ router.get('/read', async(req, res) => {
 router.post('/update', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 
@@ -81,7 +81,7 @@ router.post('/update', async(req, res) => {
 router.post('/delete', async(req, res) => {
     const token = req.cookies.token
     try{
-        const payload = utils.verifyToken(res, utils.jwtKey, token)
+        const payload = utils.verifyToken(res, token)
         if(payload.status){ 
             res.end()
             return payload.status 

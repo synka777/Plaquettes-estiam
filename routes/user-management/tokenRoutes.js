@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router()
-const baseController = require("../controllers/baseController");
-const utils = require('../kernel/utils.js')
+const baseController = require("../../controllers/baseController");
+const utils = require('../../kernel/utils.js')
+
 const jwt = require('jsonwebtoken')
 const jwtExpirySeconds = 9000
 

@@ -5,19 +5,28 @@ const cors = require('cors');
 const router = express.Router();
 const db = require('./kernel/db');
 
-const tokenMgmtRoutes = require("./routes/tokenRoutes.js");
-const usersRoutes = require("./routes/usersRoutes.js");
-const rolesRoutes = require('./routes/rolesRoutes.js');
-const cursusRoutes = require('./routes/cursusesRoutes.js')
-const partnersRoutes = require('./routes/partnersRoutes.js');
-const permissionsRoutes = require('./routes/permissionsRoutes')
-const technologiesRoutes = require('./routes/technologiesRoutes.js');
-const certificationsRoutes = require('./routes/certificationsRoutes.js');
-const campusesRoutes = require('./routes/campusesRoutes.js');
-const committeeMembersRoutes = require('./routes/committeeMembersRoutes');
-const baseProgramsRoutes = require('./routes/baseProgramsRoutes');
-const classYearRoutes = require('./routes/classYearRoutes');
-const specialtiesRoutes = require('./routes/specialtiesRoutes');
+// User management
+const permissionsRoutes = require('./routes/user-management/permissionsRoutes')
+const tokenMgmtRoutes = require("./routes/user-management/tokenRoutes.js");
+const usersRoutes = require("./routes/user-management/usersRoutes.js");
+const rolesRoutes = require('./routes/user-management/rolesRoutes.js');
+
+// Programs
+const cursusRoutes = require('./routes/programs/cursusesRoutes.js')
+const commonBasesRoutes = require('./routes/programs/commonBasesRoutes');
+const baseCoursesRoutes = require('./routes/programs/baseCoursesRoutes');
+const specialtiesRoutes = require('./routes/programs/specialtiesRoutes');
+
+// Misc
+const technologiesRoutes = require('./routes/misc/technologiesRoutes.js');
+const certificationsRoutes = require('./routes/misc/certificationsRoutes.js');
+const campusesRoutes = require('./routes/misc/campusesRoutes.js');
+
+// Enterprises
+const committeeMembersRoutes = require('./routes/enterprises/committeeMembersRoutes');
+const partnersRoutes = require('./routes/enterprises/partnersRoutes.js');
+
+
 
 db.connect();
 
@@ -35,7 +44,7 @@ router.get('/', (req, res) => {
         /technologies
         /certifications
         /specialty-elems
-        /class-year-elems
+        /common-base-elems
         /committee-members
         /base-program-elems
     `);
@@ -55,10 +64,10 @@ app.use('/campuses', campusesRoutes);
 app.use('/partners', partnersRoutes);
 app.use('/permissions', permissionsRoutes);
 app.use('/technologies', technologiesRoutes);
-app.use('/class-year-elems', classYearRoutes);
+app.use('/base-course-elems', baseCoursesRoutes);
 app.use('/specialty-elems', specialtiesRoutes);
 app.use('/certifications', certificationsRoutes);
-app.use('/base-program-elems', baseProgramsRoutes);
+app.use('/common-base-elems', commonBasesRoutes);
 app.use('/committee-members', committeeMembersRoutes);
 
 module.exports = app;
