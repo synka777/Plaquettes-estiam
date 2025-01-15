@@ -1,56 +1,90 @@
-# Projet Plaquettes
+# Plaquettes Project
 
-**A propos:**
-Ce projet à été réalisé dans le cadre du cours 3FULLBK au cours de l'année scolaire 2021-2022. Le but de ce projet est de donner accès à un backend de gestion de ressources permettant la numérisation des brochures de présentation de l'Estiam.
 
-##Evolutions à prévoir:
-- Faire fonctionner la gestion des doublons pour les endpoints permettant de gérer les programmes
-- Ajouter des endpoints de gestion de ressources plus évolués dans les fichiers routes.
-- Refacto à faire pour centraliser les tests de contrôles d'accès dans utils.js
+**About:**
 
-## Structure du projet
+This project was carried out as part of the 3FULLBK course during the 2021-2022 academic year. The aim of this project is to provide access to a resource management backend enabling the digitization of Estiam's presentation brochures.
 
-**CONTRIBUTING.md:** contient un quickstart et des guidelines pour pouvoir aider les nouveaux développeurs à mettre en route le projet et développer de nouvelles fonctionnalités
 
-**server.js:** permet de lancer le projet en écoute sur un port, la commande à utiliser pour le lancer sera nodemon.
+##Evolutions to be planned:
 
-**app.js:** répertorie les routes menant aux endpoints de gestion CRUD de chaque type de ressource.
+- Enable duplicate management for program management endpoints
+- Add more advanced resource management endpoints in route files.
+- Refacto to centralize access control tests in utils.js.
 
-**Le dossier routes:** contient un fichier par ressource répertoriant les endpoints de gestion CRUD
 
-**Le dossier models: **contient un fichier de définition de modèle et schéma, pour la plupart des ressources: Un schéma est réutilisé pour plusieurs types de ressources lorsque la structure de celui-ci peut correspondre à plusieurs ressources différentes.
-exemple: programElement est utilisé pour trois types de ressources différents.
-Comment tester le projet
-rs utilitaires réutilisables dans le code.
+## Project structure
 
-**kernel/utils.js:** ce fichier contient des fonctions de gestion de token et de contrôle d'accès, ainsi que des identifiants admin inscrits en dur pour pouvoir gérer l'API lorsqu'aucun autre utilisateur n'existe ou a les droits requis pour effectuer les mêmes actions. { admUsername: 'origin', admPasswd: 'h4xx0rz!' } Il est fortement recommandé de changer ces identifiants pour éviter les hacks.
 
-**kernel/db.js:** contient la fonction de connexion à la base de données.
+**CONTRIBUTING.md:** contains a quickstart and guidelines to help new developers get the project up and running and develop new features
 
-**controllers/baseController.js: **contrôleur central à l'application. Ce contrôleur central contient quatre fonctions CRUD utilisées par tous les autres endpoints de l'application. De par cette conception, la gestion des ressources est assez basique.
 
-**routes/user-management/tokenRoutes.js:** contient les endpoints de gestion de token.
-Ce fichier est le seul qui répertorie des endpoints de gestion spécifiques, comparé aux autres qui se contentent d'effectuer tous la même opération.
+**server.js:** allows you to launch the project by listening on a port; the command used to launch it will be nodemon.
 
-## Connexion à la base de données
-La connexion à la base de données se fait au lancement du projet, par le biais du fichier db.js avec l'utilisation de dotenv et un fichier .env associé.
-Le projet ne fonctionnera donc pas sans ce fichier .env
 
-## Authentification
-L'authentification se fait par le biais de l'endpoint /users/login.
-Toute requête réalisée sans un cookie contenant un token généré par un compte avec les modifications nécessaires à la manipulation de ressource sera refusée avec un code de statut 401. Le refresh du token peut être fait via l'endpoint /users/refresh. Un utilisateur administrateur par défaut est répertorié dans le fichier kernel/utils.js.
+**app.js:** lists the routes leading to the CRUD management endpoints for each type of resource.
 
-## Gestion des droits des utilisateurs'
-La gestion d'accès se fait par le biais de 3 éléments.
 
-La permission, qui consiste en une string définissant le nom de ressource, et un string "W" ou "R" définissant si la permission donne un accès en mode lecture ou écriture à la ressource spécifiée.
-Le rôle, qui est composé d'un nom de rôle avec une list d'ID de permissions. Le rôle de ce rôle (lol) est de définir à quelles ressources l'utilisateur bénificiant de ce rôle à accès et s'il peut effectuer des modifications ou non sur celles-ci.
-L'utilisateur, avec un username, un mot de passe, et un ID de rôle.
+**The routes:** folder contains one file per resource, listing the CRUD management endpoints.
 
-Il est à noter que la gestion d'accès est la seule partie de l'application où la relation entre schémas est réalisée par le biais d'ID mongoose.
 
-## Comment sont gérés les doublons?
-Le contrôleur central baseController contient des contrôles, permettant de vérifier si un document existe dans la base mongoose avant d'en insérer de nouveaux.
-Cette logique fonctionne sur les Schémas mongoose simples uniquement.
+**The models:** folder contains a model and schema definition file, for most resources: A schema is reused for several resource types when its structure can correspond to several different resources.
 
-#####Bug connu: lorsqu'un schéma contient des schémas imbriqués (SCHEMAS DE LA CATEGORIE PROGRAMS PRINCIPALEMENT), la gestion de doublons n'est pas effective et le nouveau document est ajouté même s'il en existe un indentique en base de données. La gestion de doublons est fonctionnelle sur le reste des endpoints.
+example: programElement is used for three different resource types.
+
+How to test the project
+
+rs reusable utilities in the code.
+
+
+**kernel/utils.js:** this file contains token management and access control functions, as well as hard-coded admin credentials to manage the API when no other user exists or has the required rights to perform the same actions. { admUsername: 'origin', admPasswd: 'h4xx0rz!' } We strongly recommend changing these credentials to avoid hacks.
+
+
+**kernel/db.js:** contains the database connection function.
+
+
+**controllers/baseController.js: **the application's central controller. This central controller contains four CRUD functions used by all the application's other endpoints. Due to this design, resource management is fairly basic.
+
+
+**routes/user-management/tokenRoutes.js:** contains the token management endpoints.
+
+This file is the only one to list specific management endpoints, as opposed to the others, which simply perform the same operation.
+
+
+## Database connection
+
+Connection to the database is made when the project is launched, via the db.js file using dotenv and an associated .env file.
+
+The project will not function without this .env file.
+
+
+## Authentication
+
+Authentication is performed via the /users/login endpoint.
+
+Any request made without a cookie containing a token generated by an account with the necessary modifications for resource manipulation will be refused with a 401 status code. Token refresh can be performed via endpoint /users/refresh. A default administrator user is listed in the kernel/utils.js file.
+
+
+## User rights management
+
+Access management is based on 3 elements.
+
+
+Permission, which consists of a string defining the resource name, and a string “W” or “R” defining whether the permission gives read or write access to the specified resource.
+
+The role, which consists of a role name with a list of permission IDs. The role's role (lol) is to define which resources the user with this role has access to, and whether or not he can make modifications to them.
+
+The user, with a username, password and role ID.
+
+
+Note that access management is the only part of the application where the relationship between schemas is achieved via mongoose IDs.
+
+
+## How are duplicates managed?
+
+The baseController central controller contains checks to verify whether a document exists in the mongoose database before inserting new ones.
+
+This logic works on simple mongoose schemas only.
+
+
+#####Known bug: when a schema contains nested schemas (PROGRAMS CATEGORY SCHEMATICALLY), duplicate management is not effective and the new document is added even if an identical one exists in the database. Duplicate management is functional on the rest of the endpoints.
